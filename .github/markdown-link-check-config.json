@@ -1,0 +1,41 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "^https://github.com/your-org"
+    },
+    {
+      "pattern": "^<your-repo-url>"
+    },
+    {
+      "pattern": "^https://figma.com/"
+    },
+    {
+      "pattern": "^https://\\.\\.\\."
+    },
+    {
+      "pattern": "^\\.\\./specs/SPEC-"
+    },
+    {
+      "pattern": "^\\.\\./docs/"
+    },
+    {
+      "pattern": "^\\./SPEC-"
+    },
+    {
+      "pattern": "^specs/SPEC-"
+    },
+    {
+      "pattern": "^https://console\\.anthropic\\.com"
+    }
+  ],
+  "replacementPatterns": [],
+  "httpHeaders": [],
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206]
+}

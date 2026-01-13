@@ -1,0 +1,112 @@
+# タスク分割 + GitHub Issues作成
+
+SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issuesを作成します。
+
+## 実行内容
+
+1. **SPEC読み込み**
+   - `.aad/specs/SPEC-XXX.md` を読み込み
+   - MoSCoW要件を分析
+
+2. **タスク分割**
+   - Must/Should/Could要件をタスクに分割
+   - タスクID: `SPEC-XXX-T01`, `SPEC-XXX-T02`... 形式
+   - 複雑度を推定: S（1-4時間）/ M（4-8時間）/ L（8時間以上）
+
+3. **タスクファイル作成**
+   - `.aad/tasks/SPEC-XXX/` ディレクトリを作成
+   - 各タスクのMarkdownファイルを作成
+   - 実装内容、変更ファイル、テストケース、依存関係を記載
+
+4. **GitHub Issues作成**
+   - `gh issue create` で各タスクのIssueを作成
+   - ラベル: `spec:SPEC-XXX`, `priority:must/should/could`, `size:S/M/L`
+   - マイルストーン: SPEC-XXX
+
+5. **HANDOFF.md更新**
+   - 「未着手のタスク」セクションにタスク一覧を追記
+
+## 使用方法
+
+```
+/aad:tasks SPEC-001
+```
+
+## 出力例
+
+```
+SPEC-001をタスクに分割します...
+
+📖 SPEC読み込み完了: ユーザー認証機能
+
+📋 タスク分割結果:
+✅ Must Have:
+  - SPEC-001-T01: データベーススキーマ (S) → #12
+  - SPEC-001-T02: 認証API実装 (M) → #13
+  - SPEC-001-T03: フロントエンドUI (M) → #14
+
+✅ Should Have:
+  - SPEC-001-T04: パスワードリセット機能 (S) → #15
+
+✅ Could Have:
+  - SPEC-001-T05: ソーシャルログイン (L) → #16
+
+📂 タスクファイル作成完了: .aad/tasks/SPEC-001/
+
+🔗 GitHub Issues作成完了:
+   https://github.com/your-org/your-repo/milestone/1
+
+📝 HANDOFF.md更新完了
+
+次のステップ:
+1. 各Issueの詳細を確認
+2. /aad:worktree SPEC-001-T01 でワーカー起動
+3. または /aad:orchestrate SPEC-001 で全自動実行
+```
+
+## タスクファイル形式
+
+```markdown
+# SPEC-001-T01: データベーススキーマ
+
+## 複雑度: S
+
+## 実装内容
+- userテーブルのマイグレーション作成
+- インデックス追加
+
+## 変更ファイル
+- migrations/001_create_users.sql
+- src/models/user.ts
+
+## テストケース
+- スキーマ検証テスト
+
+## 依存関係
+- なし
+
+## GitHub Issue
+- #12
+```
+
+## 品質ゲート完了条件
+
+- [ ] 全タスクにIDが付与されている
+- [ ] 依存関係が明記されている
+- [ ] 複雑度（S/M/L）が設定されている
+- [ ] GitHub Issuesが作成されている
+- [ ] HANDOFF.mdが更新されている
+- [ ] **⚠️ 人間承認必須**
+
+## 関連コマンド
+
+- `/aad:worktree` - worktree作成
+- `/aad:status` - 進捗確認
+- `/aad:orchestrate` - 全自動オーケストレーション
+
+## 注意事項
+
+- タスクは1つあたり1日以内で完了できるサイズに分割してください
+- L（8時間以上）のタスクは可能な限り分割を検討してください
+- 依存関係は必ず明記し、並列実行可能なタスクを特定してください
+- GitHub CLIが設定されていることを確認してください（`gh auth status`）

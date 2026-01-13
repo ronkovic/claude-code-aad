@@ -1,0 +1,43 @@
+repos:
+  # Validate Template Structure
+  - repo: local
+    hooks:
+      - id: validate-structure
+        name: Validate Template Structure
+        entry: .claude/scripts/validate-structure.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+  # Validate Shell Scripts
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning', '-x']
+
+  # Validate Docker Configuration
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+        args: ['--no-fail']
+
+  - repo: local
+    hooks:
+      - id: docker-compose-validate
+        name: Validate docker-compose.yml
+        entry: bash -c 'cd .aad/container && docker compose config > /dev/null'
+        language: system
+        files: 'docker-compose\.yml$'
+        pass_filenames: false
+
+  # Validate Markdown Links
+  - repo: local
+    hooks:
+      - id: markdown-link-check
+        name: Check Markdown Links
+        entry: npx markdown-link-check
+        language: system
+        types: [markdown]
+        args: ['--config', '.github/markdown-link-check-config.json', '-q']

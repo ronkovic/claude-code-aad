@@ -1,0 +1,110 @@
+services:
+  # Orchestrator: 調整役（タスク分割、進捗監視、統合）
+  orchestrator:
+    build: .
+    image: autonomous-dev:latest
+    environment:
+      - ROLE=orchestrator
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GIT_USER_NAME=${GIT_USER_NAME:-Claude AI}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL:-claude@example.com}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
+      # Optional: Gemini CLI
+      # - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
+      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
+      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # .claudeディレクトリをマウント（コマンド・スクリプト共有）
+      - ../.claude:/home/claude/.claude
+    stdin_open: true
+    tty: true
+    networks:
+      - autonomous-net
+
+  # Worker 1: 並列ワーカー1
+  worker-1:
+    build: .
+    image: autonomous-dev:latest
+    environment:
+      - ROLE=worker
+      - WORKER_ID=1
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GIT_USER_NAME=${GIT_USER_NAME:-Claude AI}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL:-claude@example.com}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
+    volumes:
+      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
+      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
+      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # .claudeディレクトリをマウント（コマンド・スクリプト共有）
+      - ../.claude:/home/claude/.claude
+    stdin_open: true
+    tty: true
+    networks:
+      - autonomous-net
+    depends_on:
+      - orchestrator
+
+  # Worker 2: 並列ワーカー2
+  worker-2:
+    build: .
+    image: autonomous-dev:latest
+    environment:
+      - ROLE=worker
+      - WORKER_ID=2
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GIT_USER_NAME=${GIT_USER_NAME:-Claude AI}
+      - GIT_USER_EMAIL=${GIT_USER_EMAIL:-claude@example.com}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
+    volumes:
+      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
+      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
+      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # .claudeディレクトリをマウント（コマンド・スクリプト共有）
+      - ../.claude:/home/claude/.claude
+    stdin_open: true
+    tty: true
+    networks:
+      - autonomous-net
+    depends_on:
+      - orchestrator
+
+  # Worker 3: 並列ワーカー3（必要に応じてコメント解除）
+  # worker-3:
+  #   build: .
+  #   image: autonomous-dev:latest
+  #   container_name: autonomous-dev-worker-3
+  #   environment:
+  #     - ROLE=worker
+  #     - WORKER_ID=3
+  #     - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
+  #     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+  #     - GIT_USER_NAME=${GIT_USER_NAME:-Claude AI}
+  #     - GIT_USER_EMAIL=${GIT_USER_EMAIL:-claude@example.com}
+  #     - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+  #     - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
+  #     # Optional: Gemini CLI
+  #     # - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+  #   volumes:
+  #     # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
+  #     # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
+  #     - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+  #     # .claudeディレクトリをマウント（コマンド・スクリプト共有）
+  #     - ../.claude:/home/claude/.claude
+  #   stdin_open: true
+  #   tty: true
+  #   networks:
+  #     - autonomous-net
+  #   depends_on:
+  #     - orchestrator
+
+networks:
+  autonomous-net:
+    driver: bridge
