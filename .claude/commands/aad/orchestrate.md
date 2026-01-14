@@ -1,6 +1,19 @@
-# 全自動オーケストレーション
+# 全自動オーケストレーション（3層アーキテクチャ）
 
 SPECからタスク分割、並列開発、統合まで全て自動実行します。
+
+## アーキテクチャ概要
+
+```
+親 Claude Code (このセッション)
+    │
+    ├─→ 子 Claude Code (SPEC-001担当) ──→ サブエージェント (T01, T02, T03...)
+    └─→ 子 Claude Code (SPEC-002担当) ──→ サブエージェント (T01, T02...)
+```
+
+- **親**: 複数SPECの管理、人間とのインターフェース、エスカレーション処理
+- **子**: SPEC単位のブランチ管理、Wave計画、軽微な判断を自律実行
+- **サブエージェント**: 個々のタスクの実装・テスト
 
 ## 実行内容
 
@@ -8,55 +21,175 @@ SPECからタスク分割、並列開発、統合まで全て自動実行しま�
    - `.aad/specs/SPEC-XXX.md` を読み込み
    - 承認済みか確認（人間承認必須）
 
-2. **タスク分割**
+2. **タスク分割**（必要な場合）
    - `/aad:tasks SPEC-XXX` を実行
    - GitHub Issues作成（`--no-issues`未指定時）
 
-3. **依存関係解析**
-   - タスク間の依存関係を解析
-   - 並列実行可能なタスクを特定
+3. **進捗ディレクトリ初期化**
+   - `.aad/progress/` ディレクトリ作成
+   - `orchestrator.json` 初期化
 
-4. **並列ワーカー起動**
-   - 依存関係のないタスクを並列実行
-   - Docker環境で各ワーカーを起動
-   - `--dangerously-skip-permissions` で自律実行
+4. **子 Claude Code 起動**
+   - SPEC単位で子を起動（Task ツール使用）
+   - `run_in_background=true` で並列実行
+   - 各子は独立したコンテキストで動作
 
 5. **進捗監視**
-   - 各ワーカーの状態を監視
-   - エスカレーション発生時は通知
-   - 品質ゲートを自動チェック
+   - 3秒間隔でポーリング（TaskOutput使用）
+   - エスカレーション発生時は人間に質問
+   - 完了した子から順次確認
 
-6. **順次統合**
-   - 完了したタスクから順次マージ
-   - コンフリクト発生時は人間にエスカレーション
+6. **エスカレーション処理**
+   - 子からのエスカレーションを受信
+   - `.aad/progress/SPEC-XXX/blocks/` から質問を読み取り
+   - 人間に AskUserQuestion で質問
+   - 回答を保存し、新しい子を resume モードで起動
 
-7. **振り返り**
-   - 全タスク完了後、自動で `/aad:retro` 実行
+7. **最終確認**
+   - 全SPECの完了を確認
+   - 人間に最終承認を依頼
+   - worktree 削除
+
+8. **振り返り**（オプション）
+   - 全タスク完了後、`/aad:retro` 実行
 
 ## 使用方法
 
-### 完全自動モード
+### 基本的な使用
 
-```
+```bash
+# 単一SPEC実行
 /aad:orchestrate SPEC-001
+
+# 複数SPEC同時実行
+/aad:orchestrate SPEC-001 SPEC-002
 ```
 
-### ドライランモード（実行前確認）
+### オプション
 
-```
+```bash
+# ドライラン（実行前確認）
 /aad:orchestrate SPEC-001 --dry-run
+
+# 中断からの再開
+/aad:orchestrate --resume
+
+# 実行状況確認
+/aad:orchestrate --status
+
+# GitHub Issues作成をスキップ
+/aad:orchestrate SPEC-001 --no-issues
 ```
 
-### 並列度指定
+## 実装詳細
+
+### Step 1: 事前確認
 
 ```
-/aad:orchestrate SPEC-001 --workers=3
+1. 指定されたSPECファイルの存在を確認
+2. タスクファイルの存在を確認（なければ /aad:tasks 実行）
+3. 進捗ディレクトリを初期化
+```
+
+### Step 2: 子 Claude Code 起動
+
+```
+各SPECに対して:
+  1. CHILD-PROMPT.md テンプレートを読み込み
+  2. {{SPEC_ID}} などを置換
+  3. Task ツールで子を起動:
+     - description: "SPEC-001を実行"
+     - subagent_type: "general-purpose"
+     - prompt: テンプレートから生成したプロンプト
+     - run_in_background: true
+     - max_turns: 200 (60分相当)
+  4. 返された taskId を記録
+```
+
+### Step 3: 監視ループ
+
+```python
+while 未完了の子がある:
+    for each taskId in 実行中タスク:
+        result = TaskOutput(taskId, block=false, timeout=1000)
+
+        if result.status == "completed":
+            # 完了処理
+            - spec-status.json を確認
+            - 完了したタスクのPRを確認
+            - orchestrator.json を更新
+
+        elif result.status == "escalate":
+            # エスカレーション処理
+            - blocks/*.md を読み取り
+            - 人間に AskUserQuestion で質問
+            - 回答を *-answer.json に保存
+            - 新しい子を resume モードで起動
+
+        elif result.status == "failed":
+            # エラー処理
+            - エラー内容を表示
+            - 人間に対応を確認
+
+        else:
+            # 継続中
+            pass
+
+    wait(3秒)
+```
+
+### Step 4: エスカレーション処理の詳細
+
+```
+1. エスカレーションを受信:
+   - taskId から SPEC ID を特定
+   - result.blockId から blocks/*.md のパスを特定
+
+2. 質問内容を読み取り:
+   - blocks/T01-001.md を読む
+   - 状況、質問、選択肢、推奨を抽出
+
+3. 人間に質問:
+   - AskUserQuestion を使用
+   - 選択肢を提示
+   - 回答を取得
+
+4. 回答を保存:
+   - .aad/progress/SPEC-001/T01-001-answer.json に保存
+   ```json
+   {
+     "blockId": "T01-001",
+     "question": "セッション管理方式をどちらにしますか？",
+     "answer": "JWT",
+     "answeredAt": "2026-01-14T12:00:00Z"
+   }
+   ```
+
+5. 新しい子を起動:
+   - MODE: "resume"
+   - prompt に "T01-001-answer.json に回答あり" を含める
+```
+
+### Step 5: 完了確認
+
+```
+全ての子が completed になったら:
+  1. 各SPECのブランチを確認
+  2. 人間に最終承認を依頼:
+     "以下のSPECが完了しました。mainにマージしますか？
+      - SPEC-001: feature/SPEC-001 (PR: #18, #19, #20)
+      - SPEC-002: feature/SPEC-002 (PR: #21, #22)"
+
+  3. 承認後:
+     - 各SPECブランチをmainにマージ
+     - worktree を削除
+     - orchestrator.json を更新
 ```
 
 ## 出力例
 
 ```
-全自動オーケストレーションを開始します: SPEC-001
+全自動オーケストレーションを開始します
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 Phase 1: SPEC確認
@@ -64,161 +197,199 @@ SPECからタスク分割、並列開発、統合まで全て自動実行しま�
 
 ✅ SPEC-001: ユーザー認証機能
    ステータス: Approved
-   承認者: @owner
-   承認日: 2026-01-10
+   タスク数: 5
+
+✅ SPEC-002: 管理画面機能
+   ステータス: Approved
+   タスク数: 3
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Phase 2: タスク分割
+📋 Phase 2: 子 Claude Code 起動
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ タスク分割完了: 5タスク
-✅ GitHub Issues作成完了: #12-#16
+🚀 子を起動:
+   - SPEC-001 (taskId: abc123)
+   - SPEC-002 (taskId: def456)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Phase 3: 依存関係解析
+📋 Phase 3: 進捗監視
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-依存関係グラフ:
-  T01: データベーススキーマ [並列可能]
-  T02: 認証API ← T01
-  T03: フロントエンドUI ← T02
-  T04: パスワードリセット ← T02
-  T05: ソーシャルログイン ← T02
+⏳ 監視中...
 
-並列実行計画:
-  Wave 1: T01
-  Wave 2: T02
-  Wave 3: T03, T04, T05 (3並列)
+[3分後]
+📊 SPEC-001:
+   Wave 1 完了: T01 ✅
+   Wave 2 実行中: T02 ⏳
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Phase 4: 並列ワーカー起動
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 SPEC-002:
+   Wave 1 実行中: T01 ⏳
 
-🚀 Wave 1 起動:
-   Worker-T01: Docker container started
-   └─ cd ../my-project-T01
-   └─ claude --dangerously-skip-permissions
+[10分後]
+🟡 SPEC-001 からエスカレーション:
+   タスク: T03
+   理由: セッション管理方式の選択が必要
 
-⏳ 進捗監視中...
+質問: セッション管理方式をどちらにしますか？
+選択肢:
+  1. JWT - ステートレス、スケーラブル（推奨）
+  2. Server Session - シンプル、即座に無効化可能
 
-✅ Wave 1 完了:
-   Worker-T01: ✅ 完了 (25分)
-     テスト: green
-     カバレッジ: 90%
-     PR: #18 (Merged)
+回答: JWT
 
-🚀 Wave 2 起動:
-   Worker-T02: Docker container started
+✅ エスカレーション解決
+   新しい子を起動（resume モード）
 
-✅ Wave 2 完了:
-   Worker-T02: ✅ 完了 (45分)
+[30分後]
+✅ SPEC-001 完了
+   - 完了タスク: 5/5
+   - PR: #18, #19, #20, #21, #22
 
-🚀 Wave 3 起動 (3並列):
-   Worker-T03: Docker container started
-   Worker-T04: Docker container started
-   Worker-T05: 🟡 警告 - カバレッジ 75% (目標: 80%)
-     → Issue #19 作成
-     → 作業継続
-
-✅ Wave 3 完了:
-   Worker-T03: ✅ 完了 (40分)
-   Worker-T04: ✅ 完了 (30分)
-   Worker-T05: ✅ 完了 (70分) - カバレッジ改善完了
+✅ SPEC-002 完了
+   - 完了タスク: 3/3
+   - PR: #23, #24, #25
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Phase 5: 振り返り
+📋 Phase 4: 最終確認
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ 振り返りログ作成: .aad/retrospectives/RETRO-SPEC-001-20260111.md
+以下のSPECが完了しました。mainにマージしますか？
+  - SPEC-001: feature/SPEC-001 (PR: 5個)
+  - SPEC-002: feature/SPEC-002 (PR: 3個)
+
+→ はい
+
+✅ マージ完了
+✅ worktree 削除完了
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ オーケストレーション完了！
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📊 サマリー:
-   総所要時間: 3時間10分
-   完了タスク: 5/5
-   エスカレーション: 1件（警告レベル）
-   平均カバレッジ: 85%
-
-次のステップ:
-   1. .aad/retrospectives/RETRO-SPEC-001-20260111.md を確認
-   2. 次のSPECに着手: SPEC-002
+   総所要時間: 35分
+   完了SPEC: 2
+   完了タスク: 8/8
+   エスカレーション: 1件
+   平均カバレッジ: 87%
 ```
-
-## Docker環境設定
-
-`.aad/container/docker-compose.yml` を使用：
-
-```yaml
-services:
-  orchestrator:
-    # 調整役
-    environment:
-      - ROLE=orchestrator
-
-  worker-1:
-    # 並列ワーカー1
-    environment:
-      - ROLE=worker
-      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}
-
-  worker-2:
-    # 並列ワーカー2
-```
-
-## エスカレーションハンドリング
-
-### 🔴 即時エスカレーション
-- 作業停止
-- 全ワーカーを一時停止
-- 人間に通知
-- 承認後に再開
-
-### 🟡 警告エスカレーション
-- 作業継続
-- Issue作成
-- 通知のみ
 
 ## ドライランモード
 
 実行前に計画を確認：
 
 ```
-/aad:orchestrate SPEC-001 --dry-run
+/aad:orchestrate SPEC-001 SPEC-002 --dry-run
 
-実行計画:
-  Wave 1: T01 (1ワーカー)
-  Wave 2: T02 (1ワーカー)
-  Wave 3: T03, T04, T05 (3ワーカー並列)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+実行計画
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-予想所要時間: 2-4時間
-最大並列度: 3ワーカー
+SPEC-001: ユーザー認証機能 (5タスク)
+  Wave 1: T01
+  Wave 2: T02
+  Wave 3: T03, T04, T05 (並列)
+
+SPEC-002: 管理画面機能 (3タスク)
+  Wave 1: T01, T02 (並列)
+  Wave 2: T03
+
+予想所要時間: 30-60分
+最大並列度: SPEC 2個 × Task 2個 = 4並列
 
 この計画で実行しますか？ (y/n)
 ```
 
-## オプション
+## 状態確認
 
-- `--dry-run`: 実行前確認
-- `--workers=N`: 最大並列ワーカー数（デフォルト: 3）
-- `--no-docker`: ローカル環境で実行（非推奨）
-- `--pause-on-error`: エラー発生時に自動停止
-- `--no-issues`: GitHub Issues作成をスキップ
+実行中の状態を確認：
+
+```
+/aad:orchestrate --status
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+実行状況
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SPEC-001: in_progress (経過時間: 15分)
+  ✅ T01: completed (PR: #18)
+  ⏳ T02: in_progress
+  ⏸️  T03: blocked (escalation待ち)
+  ⬜ T04: pending
+  ⬜ T05: pending
+
+SPEC-002: in_progress (経過時間: 15分)
+  ⏳ T01: in_progress
+  ⬜ T02: pending
+  ⬜ T03: pending
+
+エスカレーション待ち: 1件
+  - SPEC-001-T03: セッション管理方式の選択
+```
+
+## resume モード
+
+中断したオーケストレーションを再開：
+
+```
+/aad:orchestrate --resume
+
+.aad/progress/orchestrator.json を読み込み中...
+
+以下のSPECを再開しますか？
+  - SPEC-001: in_progress (T03がblocked)
+  - SPEC-002: in_progress (T02実行中)
+
+→ はい
+
+SPEC-001のエスカレーションを処理中...
+```
+
+## 進捗ファイル構造
+
+```
+.aad/progress/
+├── orchestrator.json              # 親の状態
+├── SPEC-001/
+│   ├── spec-status.json           # 子の状態
+│   ├── T01-state.json             # サブエージェントの状態
+│   ├── T03-state.json
+│   ├── T03-001-answer.json        # 回答
+│   └── blocks/
+│       └── T03-001.md             # ブロック報告
+└── SPEC-002/
+    ├── spec-status.json
+    └── ...
+```
+
+## エスカレーションレベル
+
+### 子が自律判断可能（人間への質問不要）
+- コーディング規約に関する判断
+- 軽微な設計判断（既存パターンに従う）
+- テストのエッジケース追加
+
+→ 子が autonomousDecisions に記録
+
+### 親にエスカレーション（人間への質問必要）
+- アーキテクチャに影響する判断
+- セキュリティに関わる判断
+- 外部API/サービスの選択
+- 仕様の曖昧さの解消
+
+→ 親が人間に AskUserQuestion
 
 ## 関連コマンド
 
 - `/aad:tasks` - タスク分割のみ
-- `/aad:worktree` - 手動worktree作成
 - `/aad:status` - 進捗確認
-- `/aad:integrate` - 手動統合
 - `/aad:retro` - 振り返り
 
 ## 注意事項
 
 - 必ずSPECが承認済みであることを確認してください
-- Docker環境が正しく設定されていることを確認してください
-- 長時間実行されるため、安定したネットワーク環境が必要です
+- 長時間実行されるため、安定した環境が必要です
 - エスカレーション発生時は速やかに対応してください
-- オーケストレーション中は `/aad:status` で進捗を確認できます
-- 完全自動実行は信頼性の高いテストカバレッジが前提です
+- ホストマシンに必要なツール（go, node, pythonなど）がインストールされていることを確認してください
+- 子の最大実行時間は60分です
+- SPEC並列度は最大2、Task並列度は最大2です（合計4並列）

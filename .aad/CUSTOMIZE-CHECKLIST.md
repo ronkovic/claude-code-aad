@@ -64,22 +64,11 @@ claude setup-token
 # 表示されたトークンをコピー
 ```
 
-**aad/container/.env** を作成：
-
-```bash
-cd container
-cp .env.example .env
-
-# .envを編集
-CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-XXXXXXXXXX
-```
-
 #### Option B: API Key（API利用者）
 
-```bash
-# .envを編集
-ANTHROPIC_API_KEY=sk-ant-api-XXXXXXXXXX
-```
+Anthropic Consoleで生成されたAPIキーを使用します。
+
+**注**: OAuth TokenまたはAPIキーは環境変数として設定するか、Claude Codeの設定で管理します。
 
 ### 3. GitHubリポジトリの接続
 
@@ -147,12 +136,6 @@ claude
 - パフォーマンス基準: [具体的な数値]
 ```
 
-**aad/container/.env** でカバレッジ目標を設定：
-
-```bash
-MIN_COVERAGE=85  # プロジェクトの基準に合わせる
-```
-
 ### 3. コミットメッセージ規約
 
 **CLAUDE.md** の「コミットメッセージ規約」を確認・調整：
@@ -211,21 +194,6 @@ jobs:
       # カバレッジチェック
       - name: Check coverage
         run: [your-coverage-check-command]
-```
-
-### 6. Docker並列度の調整
-
-**aad/container/docker-compose.yml** を編集：
-
-```yaml
-# worker-3をコメント解除（3並列が必要な場合）
-# worker-4を追加（4並列が必要な場合）
-```
-
-**aad/container/.env** で設定：
-
-```bash
-MAX_WORKERS=2  # プロジェクトの規模に応じて調整
 ```
 
 **✅ レベル2完了**: プロジェクトに最適化された状態です。
@@ -296,28 +264,7 @@ cat > .claude/skills/my-custom-skill/SKILL.md <<EOF
 EOF
 ```
 
-### 4. Gemini CLI の有効化
-
-ブロックされるサイト（Reddit等）へのアクセスが必要な場合：
-
-**aad/container/Dockerfile** を編集：
-
-```dockerfile
-# Gemini CLIのコメントを解除
-RUN npm install -g @google/gemini-cli && \
-    npm cache clean --force
-
-# Gemini設定のコメントを解除
-RUN echo '{...}' > ~/.gemini/settings.json
-```
-
-**aad/container/.env** に追加：
-
-```bash
-GEMINI_API_KEY=your-api-key
-```
-
-### 5. プロジェクト固有の品質チェック
+### 4. プロジェクト固有の品質チェック
 
 **CLAUDE.md** に追加：
 
@@ -476,7 +423,6 @@ my-project/
 
 #### 設定ファイル
 - [ ] CLAUDE.md が更新されている
-- [ ] aad/container/.env が設定されている
 - [ ] .github/workflows/ が設定されている
 - [ ] package.json（または相当）が設定されている
 
@@ -484,7 +430,6 @@ my-project/
 - [ ] `/aad:init` が正常に実行できる
 - [ ] `/aad:context` でコンテキストが表示される
 - [ ] `/aad:status` で進捗が表示される
-- [ ] Docker環境が起動する
 - [ ] GitHub連携が動作する
 
 #### ドキュメント
@@ -500,17 +445,12 @@ claude
 /aad:context
 /aad:status
 
-# 2. Docker環境
-cd container
-docker build -t autonomous-dev .
-docker run -it --env-file .env autonomous-dev
-
-# 3. GitHub連携
+# 2. GitHub連携
 gh auth status
 gh repo view
 gh issue create --title "Test" --body "Test"
 
-# 4. テスト実行
+# 3. テスト実行
 npm test
 npm run test:coverage
 npm run lint
@@ -528,19 +468,6 @@ rm -rf ~/.claude/cache/
 
 # 再起動
 claude
-```
-
-### Docker環境が起動しない
-
-```bash
-# ログ確認
-docker-compose logs
-
-# 環境変数確認
-docker run --env-file .env autonomous-dev env | grep CLAUDE
-
-# 再ビルド
-docker-compose build --no-cache
 ```
 
 ### コマンドが認識されない

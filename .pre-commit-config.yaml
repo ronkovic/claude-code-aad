@@ -16,22 +16,6 @@ repos:
       - id: shellcheck
         args: ['--severity=warning', '-x']
 
-  # Validate Docker Configuration
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint
-        args: ['--no-fail']
-
-  - repo: local
-    hooks:
-      - id: docker-compose-validate
-        name: Validate docker-compose.yml
-        entry: bash -c 'cd .aad/container && HOST_PROJECT_PATH=/tmp/dummy docker compose config > /dev/null'
-        language: system
-        files: 'docker-compose\.yml$'
-        pass_filenames: false
-
   # Validate Markdown Links
   - repo: local
     hooks:

@@ -22,15 +22,11 @@
    - 対応するGitHub Issueを閉鎖
    - クローズコメントに成果物を記載
 
-5. **Docker Worker停止**（使用時のみ）
-   - `.aad/container/scripts/stop-worker.sh` でコンテナ停止
-   - 動的Workerを削除
-
-6. **worktree削除**
+5. **worktree削除**
    - `git worktree remove` でworktreeを削除
    - ローカルブランチも削除
 
-7. **HANDOFF.md更新**
+6. **HANDOFF.md更新**
    - 「進行中のタスク」から削除
    - 「完了したタスク」に追加
 
@@ -73,9 +69,6 @@
 
 🔒 Issue閉鎖:（GitHub連携使用時）
    ✅ Issue #12 を閉鎖しました
-
-🐳 Docker Worker停止:
-   ✅ aad-SPEC-001-T01 を停止・削除しました
 
 🗑️  worktree削除:
    ✅ ../my-project-T01 を削除しました

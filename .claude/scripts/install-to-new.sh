@@ -82,15 +82,6 @@ read -r CONTINUE
 echo ""
 echo "📦 テンプレートファイルをコピー中..."
 
-# 既存.aad/containerのチェック
-if [ -d "$TARGET_DIR/.aad/container" ]; then
-  echo ""
-  echo "⚠️  警告: $TARGET_DIR/.aad/container/ は既に存在します"
-  echo "   テンプレートで上書きされます"
-  echo "   キャンセルする場合は Ctrl+C を押してください..."
-  sleep 3
-fi
-
 # コピー除外リスト
 EXCLUDE_ITEMS=(".git" "node_modules" ".aad-backup-*" ".aad/worktrees")
 
@@ -118,13 +109,6 @@ fi
 # .aad/worktreesディレクトリを作成（空で）
 mkdir -p "$TARGET_DIR/.aad/worktrees"
 touch "$TARGET_DIR/.aad/worktrees/.gitkeep"
-
-# .aad/containerの存在確認
-if [ -d "$TARGET_DIR/.aad/container" ]; then
-  echo "  ✅ .aad/container/ をコピーしました"
-else
-  echo "  ⚠️  .aad/container/ はテンプレートに存在しません"
-fi
 echo "  ✅ .aad/worktrees/ を作成しました"
 
 # .aad/retrospectivesのファイルを削除（テンプレートは別ディレクトリ）
@@ -210,7 +194,6 @@ chore: AADテンプレートで初期化
 自律型AI駆動開発テンプレートを導入:
 - 6フェーズワークフロー (SPEC/TASKS/TDD/REVIEW/RETRO/MERGE)
 - 12個のスラッシュコマンド (/aad:*)
-- Docker隔離環境
 - 品質ゲート (カバレッジ80%以上)
 - コンテキスト管理 (70%ルール)
 EOF

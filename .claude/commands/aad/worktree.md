@@ -54,9 +54,6 @@ worktreeを作成します: SPEC-001-T01
 1. cd ../my-project-T01
 2. claude --dangerously-skip-permissions
 3. タスクの実装を開始
-
-または:
-- Docker環境で実行: docker run -v $(pwd)/../my-project-T01:/workspace ...
 ```
 
 ## worktreeアーキテクチャ
@@ -88,51 +85,28 @@ my-project-T02/          # worktree - Worker 2
 - `/aad:integrate` - PRマージ + worktree削除
 - `/aad:orchestrate` - 全自動オーケストレーション
 
-## Docker環境での使用
+## worktreeでの作業開始
 
-### 動的Worker管理スクリプト（推奨）
-
-worktree作成後、動的Workerスクリプトで自動的にコンテナを起動できます：
+worktree作成後、作業を開始する方法：
 
 ```bash
 # 1. worktree作成
 /aad:worktree SPEC-001-T01
 
-# 2. Docker Worker起動
-cd .aad/container/scripts
-./start-worker.sh SPEC-001-T01 /path/to/project-T01
+# 2. worktreeディレクトリに移動
+cd ../my-project-T01
 
-# 3. 起動後すぐに接続
-./start-worker.sh SPEC-001-T01 /path/to/project-T01 --attach
-
-# 4. Worker一覧確認
-./list-workers.sh
-
-# 5. Worker停止
-./stop-worker.sh SPEC-001-T01
-```
-
-**メリット**:
-- タスクIDに基づくコンテナ名（`aad-SPEC-001-T01`）
-- 同一パスマウントで自動Git worktree互換
-- 環境変数の自動ロード（`.env`から）
-- 無制限の並列Worker実行
-
-詳細は `.aad/container/README.md` の「動的Worker管理」セクションを参照してください。
-
-### 手動実行（従来方式）
-
-```bash
-# ⚠️ 重要: Git worktree互換のため、同一パスでマウント
-docker run -it \
-  -v /path/to/project-T01:/path/to/project-T01 \
-  -w /path/to/project-T01 \
-  -e CLAUDE_CODE_OAUTH_TOKEN="xxx" \
-  autonomous-dev
-
-# コンテナ内で
+# 3. Claude Codeセッション開始
 claude --dangerously-skip-permissions
+
+# 4. タスクの実装を開始
 ```
+
+**ポイント**:
+- worktreeは独立した作業環境として機能
+- 元のフォルダ（デフォルトブランチ）には影響なし
+- 複数のworktreeで並列開発が可能
+- ホストマシンの環境（go, node, pythonなど）をそのまま利用
 
 ## 注意事項
 

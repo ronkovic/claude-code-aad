@@ -121,8 +121,7 @@ AAD（自律型AI駆動開発）で使用するファイル、ブランチ、Iss
 │   │       ├── SPEC-001-T01.md
 │   │       └── SPEC-001-T02.md
 │   ├── retrospectives/          # RETRO-SPEC-XXX-YYYYMMDD.md
-│   ├── templates/               # テンプレートファイル
-│   └── container/               # Docker環境
+│   └── templates/               # テンプレートファイル
 └── .claude/
     └── commands/aad/            # スラッシュコマンド
 ```

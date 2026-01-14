@@ -31,12 +31,6 @@
 
 ### 推奨
 
-- **Docker Desktop**: 4.x以上（自律実行用）
-  ```bash
-  docker --version
-  docker-compose --version
-  ```
-
 - **tmux**: 3.x以上（セッション管理用）
   ```bash
   tmux -V
@@ -166,7 +160,6 @@ cd /path/to/your-project
 | `.gitignore` | AADエントリを追記（重複チェック） |
 | `.claude/` | `commands/aad/` と `scripts/` をマージ |
 | `docs/` | `.aad/` として配置 |
-| `.aad/container/` | `.aad/container/` として配置 |
 | `.aad/templates/` | 全テンプレート（SPEC/TASK/RETRO/TEMPLATE.md）を配置 |
 | `.aad/specs/` | ディレクトリ作成のみ（テンプレートは`.aad/templates/`） |
 | `.aad/tasks/` | ディレクトリ作成のみ（テンプレートは`.aad/templates/`） |
@@ -187,8 +180,8 @@ tail -n 10 .gitignore
 # aadコマンドが追加されているか
 ls .claude/commands/aad/
 
-# docs が docs/aad/ に配置されているか（既存docsがある場合）
-ls docs/aad/
+# .aad/ ディレクトリが作成されているか
+ls .aad/
 ```
 
 ### バックアップからの復元
@@ -270,64 +263,7 @@ gh repo edit --enable-issues=true
 - コーディングルール
 - コミットメッセージ規約
 
-### ステップ4: Docker環境設定（オプション）
-
-自律実行・並列開発を使用する場合：
-
-```bash
-cd container
-
-# 1. .envファイルを作成
-cp .env.example .env
-
-# 2. 認証情報を設定
-vim .env
-
-# CLAUDE_CODE_OAUTH_TOKEN または ANTHROPIC_API_KEY を記入
-
-# 3. イメージをビルド
-docker build -t autonomous-dev .
-
-# 4. 動作確認（シングル）
-docker run -it --env-file .env autonomous-dev
-
-# 5. マルチワーカー起動
-docker-compose up -d
-
-# 6. ログ確認
-docker-compose logs -f
-```
-
-#### Git Worktree対応（Docker環境）
-
-⚠️ **重要**: Docker環境でGit worktreeを使用する場合、追加の設定が必要です。
-
-**なぜ必要か**: worktreeの`.git`ファイルはホストの絶対パス（例: `/Users/yourname/workspace/project/.git/aad/worktrees/xxx`）を参照します。コンテナ内で異なるパスにマウントすると、このパスにアクセスできずgit操作が失敗します。
-
-**解決方法**: 同一パスでマウント
-
-```bash
-# 1. .envファイルでHOST_PROJECT_PATHを設定
-echo 'HOST_PROJECT_PATH=/Users/yourname/workspace/project' >> aad/container/.env
-
-# 2. worktreeは必ずこのパス配下に作成
-cd /Users/yourname/workspace/project
-git worktree add ../project-feature -b feature/xxx
-
-# 3. docker-composeで起動（自動的に同一パスマウント）
-docker-compose up
-```
-
-**確認方法**:
-```bash
-# コンテナ内でgit操作が正常に動作することを確認
-docker exec -it autonomous-dev-worker-1 bash
-git status  # エラーが出なければOK
-```
-
-詳細は [aad/container/README.md](./container/README.md) を参照してください。
-
-### ステップ5: CI/CD設定（オプション）
+### ステップ4: CI/CD設定（オプション）
 
 GitHub Actionsの設定例：
 
@@ -426,7 +362,6 @@ coverage:
 1. **OAuth Token使用を推奨**
    - 毎回の認証不要
    - CI/CD対応
-   - Docker環境で効果的
 
 2. **トークンの管理**
    ```bash
@@ -435,9 +370,6 @@ coverage:
 
    # 権限を制限
    chmod 600 ~/.claude-oauth.env
-
-   # Docker起動時に読み込み
-   docker run -it --env-file ~/.claude-oauth.env autonomous-dev
    ```
 
 3. **トークンの更新**
@@ -471,16 +403,15 @@ find . -type d -maxdepth 2 | sort
 
 # 期待される出力:
 # .
+# ./.aad
+# ./.aad/progress
+# ./.aad/specs
+# ./.aad/tasks
+# ./.aad/templates
 # ./.claude
 # ./.claude/commands
 # ./.claude/scripts
 # ./.git
-# ./container
-# ./docs
-# ./retrospectives
-# ./specs
-# ./tasks
-# ./worktrees
 ```
 
 ---
@@ -520,21 +451,6 @@ gh repo view
 gh issue create --title "Test" --body "Test issue"
 ```
 
-### 4. Docker環境確認
-
-```bash
-cd container
-
-# ビルド確認
-docker build -t autonomous-dev .
-
-# 起動確認
-docker run -it --env-file .env autonomous-dev
-
-# コンテナ内で
-claude --version
-```
-
 ---
 
 ## 🚨 トラブルシューティング
@@ -564,17 +480,6 @@ gh auth login
 gh auth status
 
 # 必要なスコープ: repo, workflow
-```
-
-### Docker環境で認証エラー
-
-```bash
-# .envファイルを確認
-cat aad/container/.env
-
-# トークンが設定されているか確認
-docker run -it --env-file aad/container/.env autonomous-dev bash
-echo $CLAUDE_CODE_OAUTH_TOKEN  # 出力されるはず
 ```
 
 ### worktreeが作成できない

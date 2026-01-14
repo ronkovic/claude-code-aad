@@ -42,8 +42,8 @@
 - [例: Prettier]
 
 ### その他
-- [例: Docker]
 - [例: GitHub Actions]
+- [例: その他のツール]
 
 ---
 
@@ -143,7 +143,7 @@ Closes #12
 - パフォーマンス改善の提案
 - コードスタイルの統一提案
 
-**アクション**: docs/aad/retrospectives/にログ記録
+**アクション**: .aad/retrospectives/にログ記録
 
 ---
 
@@ -174,7 +174,7 @@ Closes #12
 - [ ] **⚠️ 人間承認必須**
 
 ### RETRO（振り返り）
-- [ ] docs/aad/retrospectives/にログ作成
+- [ ] .aad/retrospectives/にログ作成
 - [ ] CLAUDE.md更新提案
 
 ### MERGE（統合）

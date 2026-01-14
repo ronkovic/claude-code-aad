@@ -28,7 +28,6 @@
 **オプション**:
 ```
 /aad:init --quick              # デフォルト値で高速初期化
-/aad:init --only=docker        # 特定セクションのみ
 /aad:init --reconfigure        # 再設定
 /aad:init --export=config.json # 設定エクスポート
 /aad:init --import=config.json # 設定インポート
@@ -39,13 +38,10 @@
 2. CLAUDE.mdカスタマイズ
 3. 品質基準設定
 4. GitHub連携設定
-5. Docker環境設定
-6. 初回コミット
+5. 初回コミット
 
 **出力**:
 - CLAUDE.md更新
-- aad/container/.env.example更新
-- aad/container/docker-compose.yml更新
 - .github/workflows/追加
 
 **関連コマンド**: なし
@@ -67,11 +63,11 @@ SPEC仕様書を分析し、実装可能なタスクに分割します（GitHub 
 ```
 
 **実行内容**:
-1. docs/aad/specs/SPEC-001.md読み込み
+1. .aad/specs/SPEC-001.md読み込み
 2. MoSCoW要件を分析
 3. タスク分割（SPEC-001-T01, T02...）
 4. 複雑度推定（S/M/L）
-5. タスクファイル作成（tasks/SPEC-001/）
+5. タスクファイル作成（.aad/tasks/SPEC-001/）
 6. GitHub Issues作成（`--no-issues`未指定時）
 7. HANDOFF.md更新
 
@@ -81,7 +77,7 @@ SPEC仕様書を分析し、実装可能なタスクに分割します（GitHub 
   - SPEC-001-T01: データベーススキーマ (S) → #12
   - SPEC-001-T02: 認証API実装 (M) → #13
 
-📂 タスクファイル作成完了: tasks/SPEC-001/
+📂 タスクファイル作成完了: .aad/tasks/SPEC-001/
 🔗 GitHub Issues作成完了
 ```
 
@@ -132,33 +128,6 @@ my-project/        # デフォルトブランチ - 調整役
 my-project-T01/    # worktree - Worker 1
 my-project-T02/    # worktree - Worker 2
 ```
-
-**Docker環境での使用**:
-
-⚠️ **重要**: Docker環境でworktreeを使用する場合、同一パスマウントが必要です。
-
-```bash
-# 1. HOST_PROJECT_PATHを設定
-export HOST_PROJECT_PATH=/Users/yourname/workspace/my-project
-
-# 2. worktreeを作成（ホスト側で実行）
-cd /Users/yourname/workspace/my-project
-git worktree add ../my-project-T01 -b feature/SPEC-001-T01
-
-# 3. Docker Workerを起動（同一パスマウント）
-docker run --rm -it \
-  -e CLAUDE_CODE_OAUTH_TOKEN="xxx" \
-  -v /Users/yourname/workspace:/Users/yourname/workspace \
-  -w /Users/yourname/workspace/my-project-T01 \
-  autonomous-dev \
-  bash -c "claude --dangerously-skip-permissions -p '.aad/tasks/SPEC-001/SPEC-001-T01.mdに従って実装'"
-
-# または docker-composeで
-echo 'HOST_PROJECT_PATH=/Users/yourname/workspace/my-project-T01' >> aad/container/.env
-docker-compose up worker-1
-```
-
-詳細は [aad/container/README.md](./container/README.md) を参照してください。
 
 **関連コマンド**: `/aad:tasks`, `/aad:integrate`, `/aad:status`
 
@@ -264,7 +233,19 @@ SPEC-001: ユーザー認証機能 [In Progress]
 
 ### `/aad:orchestrate`
 
-SPECからタスク分割、並列開発、統合まで全て自動実行します。
+SPECからタスク分割、並列開発、統合まで全て自動実行します（3層アーキテクチャ）。
+
+**アーキテクチャ概要**:
+```
+親 Claude Code (このセッション)
+    │
+    ├─→ 子 Claude Code (SPEC-001担当) ──→ サブエージェント (T01, T02, T03...)
+    └─→ 子 Claude Code (SPEC-002担当) ──→ サブエージェント (T01, T02...)
+```
+
+- **親**: 複数SPECの管理、人間とのインターフェース、エスカレーション処理
+- **子**: SPEC単位のブランチ管理、Wave計画、軽微な判断を自律実行
+- **サブエージェント**: 個々のタスクの実装・テスト
 
 **基本使用法**:
 ```
@@ -298,7 +279,7 @@ Wave 3: T03, T04, T05 (3並列)
 **出力例**:
 ```
 🚀 Wave 1 起動:
-   Worker-T01: Docker container started
+   Worker-T01: 起動完了
 
 ✅ Wave 1 完了:
    Worker-T01: ✅ 完了 (25分)
@@ -307,8 +288,6 @@ Wave 3: T03, T04, T05 (3並列)
    総所要時間: 3時間10分
    完了タスク: 5/5
 ```
-
-**Docker設定**: `aad/container/docker-compose.yml`
 
 **関連コマンド**: `/aad:tasks`, `/aad:worktree`, `/aad:integrate`
 
@@ -326,14 +305,14 @@ SPEC完了後に振り返りを実行し、学びを蓄積します。
 ```
 
 **実行内容**:
-1. 振り返りログ作成（docs/aad/retrospectives/）
+1. 振り返りログ作成（.aad/retrospectives/）
 2. Keep/Problem/Try記録
 3. 品質ゲート分析
 4. CLAUDE.md更新提案
 
 **出力例**:
 ```
-✅ 振り返りログ作成: docs/aad/retrospectives/RETRO-SPEC-001-20260111.md
+✅ 振り返りログ作成: .aad/retrospectives/RETRO-SPEC-001-20260111.md
 
 📊 サマリー:
 - 完了タスク: 5/5
@@ -347,7 +326,7 @@ SPEC完了後に振り返りを実行し、学びを蓄積します。
 ```
 
 **完了条件**:
-- [ ] docs/aad/retrospectives/にログ作成
+- [ ] .aad/retrospectives/にログ作成
 - [ ] Keep/Problem/Try記載
 - [ ] 技術的な学び明記
 - [ ] CLAUDE.md更新提案
@@ -562,7 +541,7 @@ HANDOFF.md を読んで現在の状況を把握してください。
 - [ ] ⚠️ 人間承認必須
 
 #### RETRO
-- [ ] docs/aad/retrospectives/にログ作成
+- [ ] .aad/retrospectives/にログ作成
 - [ ] Keep/Problem/Try記載
 
 #### MERGE
@@ -573,38 +552,6 @@ HANDOFF.md を読んで現在の状況を把握してください。
 **関連コマンド**: `/aad:tasks`, `/aad:worktree`, `/aad:integrate`
 
 **参考**: [.claude/commands/aad/gate.md](../.claude/commands/aad/gate.md)
-
----
-
-## 並列開発
-
-### Docker環境での実行
-
-**シングルワーカー**:
-```bash
-cd container
-docker build -t autonomous-dev .
-docker run -it -e CLAUDE_CODE_OAUTH_TOKEN="xxx" autonomous-dev
-```
-
-**マルチワーカー**:
-```bash
-cd container
-cp .env.example .env
-# .envにCLAUDE_CODE_OAUTH_TOKENを設定
-
-docker-compose up -d
-docker-compose logs -f
-```
-
-**ワーカーへのアクセス**:
-```bash
-# Orchestrator
-docker exec -it autonomous-dev-orchestrator bash
-
-# Worker 1
-docker exec -it autonomous-dev-worker-1 bash
-```
 
 ---
 
@@ -680,7 +627,7 @@ cat .claude/commands/aad/worktree.md
 # auto-dev.sh
 
 # SPECを作成
-vim docs/aad/specs/SPEC-001.md
+vim .aad/specs/SPEC-001.md
 
 # Claude Codeで自動実行
 claude <<EOF

@@ -171,7 +171,7 @@ coverage/
 
 # AAD テンプレート
 aad/worktrees/
-docs/aad/retrospectives/
+.aad/retrospectives/
 .aad-backup-*/
 
 # その他

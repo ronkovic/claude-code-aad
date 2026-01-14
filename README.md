@@ -7,7 +7,6 @@ Claude Codeを使用した自律型AI駆動開発のためのテンプレート�
 ## 🎯 特徴
 
 - **SPEC駆動開発**: MoSCoW形式の仕様書からタスクを自動分割
-- **高自律実行**: Docker隔離環境で`--dangerously-skip-permissions`を使用
 - **マルチワーカー**: Git worktreeによる並列開発（元フォルダに影響なし）
 - **品質ゲート**: カバレッジ80%、人間承認必須（SPEC/TASKS/REVIEWフェーズ）
 - **コンテキスト管理**: 70%ルールで自動警告・ハンドオフ推奨
@@ -18,7 +17,6 @@ Claude Codeを使用した自律型AI駆動開発のためのテンプレート�
 ### 前提条件
 
 - Claude Code（Max PlanまたはAPI）
-- Docker Desktop
 - Git
 - GitHub CLI（`gh`）
 
@@ -57,17 +55,6 @@ claude
 /aad:init
 ```
 
-### 認証設定（Docker使用時）
-
-```bash
-# OAuth Tokenを取得（Max Plan推奨）
-claude setup-token
-
-# .envファイルを作成
-cp .aad/container/.env.example .aad/container/.env
-# CLAUDE_CODE_OAUTH_TOKEN を設定
-```
-
 ### 基本的な開発フロー
 
 ```bash
@@ -97,25 +84,25 @@ cp .aad/container/.env.example .aad/container/.env
 ├── README.md                        # このファイル
 ├── CLAUDE.md                        # プロジェクト指示書（学びを蓄積）
 ├── HANDOFF.md                       # セッション間引き継ぎテンプレート
-├── .aad/specs/                           # 仕様書（MoSCoW形式）
-├── tasks/                           # タスク定義（GitHub Issues連携）
-├── .aad/retrospectives/                  # 振り返りログ
-├── .claude/                         # Claude Code設定
-│   ├── commands/                    # 11個のスラッシュコマンド
-│   ├── scripts/                     # シェルスクリプト
-│   └── settings.json                # ステータスライン設定
-├── .aad/container/                       # Docker隔離環境
-│   ├── Dockerfile
-│   ├── docker-compose.yml           # マルチワーカー構成
-│   ├── setup.sh
-│   └── .env.example
-├── .aad/worktrees/                       # 並列開発用（自動生成）
-└── docs/                            # 詳細ドキュメント
-    ├── WORKFLOW.md                  # 6フェーズワークフロー
-    ├── SETUP.md                     # セットアップガイド
-    ├── COMMANDS.md                  # コマンドリファレンス
-    ├── QUALITY-GATES.md             # 品質ゲート定義
-    └── CUSTOMIZE-CHECKLIST.md       # カスタマイズ手順
+├── .aad/                            # AADメインディレクトリ
+│   ├── specs/                       # 仕様書（MoSCoW形式）
+│   ├── tasks/                       # タスク定義（GitHub Issues連携）
+│   ├── retrospectives/              # 振り返りログ
+│   ├── templates/                   # テンプレートファイル
+│   ├── worktrees/                   # 並列開発用（自動生成）
+│   ├── progress/                    # オーケストレーション状態管理
+│   ├── WORKFLOW.md                  # 6フェーズワークフロー
+│   ├── SETUP.md                     # セットアップガイド
+│   ├── COMMANDS.md                  # コマンドリファレンス
+│   ├── QUALITY-GATES.md             # 品質ゲート定義
+│   ├── NAMING-CONVENTIONS.md        # 命名規則
+│   ├── LINTER-SETUP.md              # Linterセットアップ
+│   ├── CI-CD-SETUP.md               # CI/CDセットアップ
+│   └── CUSTOMIZE-CHECKLIST.md       # カスタマイズ手順
+└── .claude/                         # Claude Code設定
+    ├── commands/aad/                # 12個のスラッシュコマンド
+    ├── scripts/                     # シェルスクリプト
+    └── settings.json                # ステータスライン設定
 ```
 
 ## 🔧 既存プロジェクトへの導入
@@ -178,37 +165,6 @@ cd /path/to/your-project
 6. **MERGE**: mainマージ + Issue閉鎖 + worktree削除
 
 詳細は[WORKFLOW.md](.aad/WORKFLOW.md)を参照してください。
-
-## 🐳 Docker隔離環境
-
-長時間・リスクタスクを安全に実行：
-
-```bash
-cd container
-
-# シングルワーカー（手動実行）
-docker build -t autonomous-dev .
-docker run -it -e CLAUDE_CODE_OAUTH_TOKEN="xxx" autonomous-dev
-
-# マルチワーカー（自動オーケストレーション）
-docker-compose up -d
-```
-
-### Docker環境でのGit Worktree使用
-
-⚠️ **重要**: Git worktreeをDocker環境で使用する場合、**同一パスでマウント**が必要です。
-
-```bash
-# .envファイルで設定（推奨）
-echo 'HOST_PROJECT_PATH=/path/to/your/project' >> .aad/container/.env
-
-# または環境変数で指定
-HOST_PROJECT_PATH=/path/to/your/project docker-compose up
-```
-
-**理由**: worktreeの`.git`ファイルはホストの絶対パスを参照するため、コンテナ内で同じパスにマウントしないとgit操作が失敗します。
-
-詳細は [.aad/container/README.md](.aad/container/README.md) を参照してください。
 
 ## 🎨 カスタマイズ
 

@@ -102,8 +102,6 @@ if [ "$GITIGNORE_EXISTS" = true ]; then
 # === AAD Template ===
 .aad/worktrees/
 .aad/worktrees-aad/
-.aad/container/.env
-.aad/container-aad/.env
 .aad/retrospectives/*.md
 !.aad/retrospectives/.gitkeep
 GITIGNORE_SECTION
@@ -172,36 +170,14 @@ else
   echo "  ✅ docs/ を作成しました"
 fi
 
-# 8. aad/配下（container, worktrees）
+# 8. aad/配下（worktrees）
 mkdir -p "$TARGET_DIR/.aad/worktrees"  # worktreesは常に作成
 
 if [ "$AAD_EXISTS" = true ]; then
-  # 既存のaad/がある場合は別名で配置
-  if [ -d "$TARGET_DIR/.aad/container" ]; then
-    echo "  ⚠️  .aad/container/ は既に存在します（スキップ）"
-    echo "     テンプレートは .aad/container-aad として配置する予定でしたが、"
-    echo "     container-aad が既に存在する場合は手動で更新してください"
-  elif [ -d "$TEMPLATE_ROOT/.aad/container" ]; then
-    cp -r "$TEMPLATE_ROOT/.aad/container" "$TARGET_DIR/.aad/container-aad"
-    echo "  ✅ .aad/container-aad としてDocker環境を配置しました"
-  fi
   [ -d "$TEMPLATE_ROOT/.aad/worktrees" ] && \
     cp -r "$TEMPLATE_ROOT/.aad/worktrees/"* "$TARGET_DIR/.aad/worktrees/" 2>/dev/null || true
   echo "  ✅ .aad/worktrees/ を作成しました"
 else
-  if [ -d "$TARGET_DIR/.aad/container" ]; then
-    echo "  ⚠️  .aad/container/ は既に存在します"
-    echo "     最新のテンプレートに更新する場合は以下を実行:"
-    echo "     rm -rf $TARGET_DIR/.aad/container"
-    echo "     cp -r $TEMPLATE_ROOT/.aad/container $TARGET_DIR/aad/"
-  else
-    if [ -d "$TEMPLATE_ROOT/.aad/container" ]; then
-      cp -r "$TEMPLATE_ROOT/.aad/container" "$TARGET_DIR/aad/"
-      echo "  ✅ .aad/container/ を作成しました"
-    else
-      echo "  ⚠️  .aad/container/ はテンプレートに存在しません（スキップ）"
-    fi
-  fi
   echo "  ✅ .aad/worktrees/ を作成しました"
 fi
 

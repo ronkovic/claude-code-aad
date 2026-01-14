@@ -47,11 +47,6 @@ jobs:
           test -f .claude/scripts/install-to-new.sh || { echo "❌ install-to-new.sh not found"; exit 1; }
           test -f .claude/scripts/install-to-existing.sh || { echo "❌ install-to-existing.sh not found"; exit 1; }
 
-          # Docker
-          test -f .aad/container/Dockerfile || { echo "❌ Dockerfile not found"; exit 1; }
-          test -f .aad/container/docker-compose.yml || { echo "❌ docker-compose.yml not found"; exit 1; }
-          test -f .aad/container/.env.example || { echo "❌ .env.example not found"; exit 1; }
-
           # Templates
           test -f .aad/templates/SPEC-TEMPLATE.md || { echo "❌ SPEC-TEMPLATE.md not found"; exit 1; }
           test -f .aad/templates/TASK-TEMPLATE.md || { echo "❌ TASK-TEMPLATE.md not found"; exit 1; }
@@ -85,26 +80,6 @@ jobs:
           done
           echo "✅ All shell scripts passed ShellCheck"
 
-  validate-docker:
-    name: Validate Docker Configuration
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate Dockerfile
-        run: |
-          echo "Validating Dockerfile..."
-          docker run --rm -i hadolint/hadolint < .aad/container/Dockerfile || echo "⚠️ Hadolint warnings (non-blocking)"
-
-      - name: Validate docker-compose.yml
-        run: |
-          echo "Validating docker-compose.yml..."
-          cd .aad/container
-          docker compose config > /dev/null || { echo "❌ docker-compose.yml is invalid"; exit 1; }
-          echo "✅ docker-compose.yml is valid"
-
   validate-markdown:
     name: Validate Markdown Links
     runs-on: ubuntu-latest
@@ -122,7 +97,7 @@ jobs:
   summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [validate-structure, validate-scripts, validate-docker, validate-markdown]
+    needs: [validate-structure, validate-scripts, validate-markdown]
     if: always()
 
     steps:
@@ -131,12 +106,10 @@ jobs:
           echo "Quality Gate Results:"
           echo "- Structure Validation: ${{ needs.validate-structure.result }}"
           echo "- Scripts Validation: ${{ needs.validate-scripts.result }}"
-          echo "- Docker Validation: ${{ needs.validate-docker.result }}"
           echo "- Markdown Validation: ${{ needs.validate-markdown.result }}"
 
           if [ "${{ needs.validate-structure.result }}" != "success" ] || \
-             [ "${{ needs.validate-scripts.result }}" != "success" ] || \
-             [ "${{ needs.validate-docker.result }}" != "success" ]; then
+             [ "${{ needs.validate-scripts.result }}" != "success" ]; then
             echo "❌ Quality Gate FAILED"
             exit 1
           fi

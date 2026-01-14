@@ -2,6 +2,133 @@
 
 このテンプレートをプロジェクトに合わせてカスタマイズするウィザードです。
 
+## 🔴 重要: 実装指示
+
+このコマンドを実行する際は、**必ず `AskUserQuestion` ツールを使用して**ユーザーに選択肢を提示すること。テキストベースの質問は使用しないこと。
+
+### ウィザードの流れ
+
+#### Step 1: 環境検出
+まず以下を検出する:
+- `git remote -v` でGitHubリポジトリURL
+- `git branch --show-current` でデフォルトブランチ
+- `package.json` または `pyproject.toml` から技術スタック
+- `README.md` からプロジェクト名
+
+#### Step 2: プロジェクト情報（AskUserQuestion使用）
+`AskUserQuestion` で以下を質問（最大4つまで同時に質問可能）:
+
+```json
+{
+  "questions": [
+    {
+      "question": "使用する言語・フレームワークを選択してください",
+      "header": "技術スタック",
+      "options": [
+        {"label": "TypeScript + Node.js (推奨)", "description": "Node.js環境でTypeScriptを使用。Webアプリケーション、API、CLIツールなど"},
+        {"label": "Python", "description": "Python環境。データ分析、機械学習、Webアプリケーションなど"},
+        {"label": "Go", "description": "Go言語環境。高速なバックエンドAPI、CLIツールなど"}
+      ],
+      "multiSelect": false
+    },
+    {
+      "question": "テストフレームワークを選択してください",
+      "header": "テスト",
+      "options": [
+        {"label": "Jest (推奨)", "description": "JavaScript/TypeScript向けのテストフレームワーク。高速で設定が簡単"},
+        {"label": "Vitest", "description": "Vite環境向けのテストフレームワーク。Jest互換でさらに高速"},
+        {"label": "pytest", "description": "Python向けのテストフレームワーク。シンプルで強力"},
+        {"label": "後で設定する", "description": "今は設定せず、後でセットアップする"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
+#### Step 3: 品質基準（AskUserQuestion使用）
+`AskUserQuestion` で以下を質問:
+
+```json
+{
+  "questions": [
+    {
+      "question": "Lintツールを設定しますか？",
+      "header": "Lint",
+      "options": [
+        {"label": "ESLint (推奨)", "description": "JavaScript/TypeScript向けのLintツール。業界標準"},
+        {"label": "Biome", "description": "高速なLint・Formatter。ESLint + Prettierの代替"},
+        {"label": "Ruff", "description": "Python向けの高速Lintツール"},
+        {"label": "後で設定する", "description": "今は設定しない"}
+      ],
+      "multiSelect": false
+    },
+    {
+      "question": "テストカバレッジの目標を設定してください",
+      "header": "カバレッジ",
+      "options": [
+        {"label": "80% (推奨)", "description": "バランスの取れた目標。AADのデフォルト"},
+        {"label": "90%", "description": "高い品質基準。より厳格なテスト"},
+        {"label": "70%", "description": "柔軟な基準。プロトタイプや実験的プロジェクト向け"},
+        {"label": "100%", "description": "完全なカバレッジ。クリティカルなプロジェクト向け"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
+#### Step 4: GitHub連携（AskUserQuestion使用）
+検出したGitHubリポジトリがない場合のみ質問:
+
+```json
+{
+  "questions": [
+    {
+      "question": "GitHubリポジトリを連携しますか？",
+      "header": "GitHub",
+      "options": [
+        {"label": "後で設定する (推奨)", "description": "ローカルで開発を開始し、後でGitHubリポジトリを作成"},
+        {"label": "既存のリポジトリを指定", "description": "既に作成済みのGitHubリポジトリURLを入力"},
+        {"label": "連携しない", "description": "GitHubを使用せず、ローカルのみで開発"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
+#### Step 5: 確認（AskUserQuestion使用）
+収集した情報を表示し、最終確認:
+
+```json
+{
+  "questions": [
+    {
+      "question": "この内容で初期化しますか？",
+      "header": "最終確認",
+      "options": [
+        {"label": "はい、初期化する", "description": "設定を反映してCLAUDE.mdを更新します"},
+        {"label": "いいえ、やり直す", "description": "最初からやり直します"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
+#### Step 6: 実行
+- CLAUDE.md を更新
+- デフォルトブランチをCLAUDE.mdに反映
+- 初回コミット作成（AskUserQuestionで確認）
+
+### 注意事項
+- **必ず AskUserQuestion を使用すること**
+- 1回のAskUserQuestionで最大4つまで質問可能
+- multiSelect: false（単一選択）を使用
+- label は短く（12文字以内推奨）
+- description で詳細を説明
+
 ## 実行内容
 
 1. **プロジェクト情報の収集**
@@ -25,12 +152,7 @@
    - デフォルトブランチ（自動検出 + 確認）
    - Issue/PRテンプレート
 
-5. **Docker環境の設定**
-   - 認証方式（CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY）
-   - Gemini CLI使用有無
-   - 並列ワーカー数
-
-6. **初回コミット**
+5. **初回コミット**
    - 設定を反映してgit commit
 
 ## 使用方法
@@ -51,7 +173,7 @@
 このウィザードでプロジェクトをセットアップします。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 1/6: プロジェクト情報
+📋 Step 1/5: プロジェクト情報
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 プロジェクト名を入力してください:
@@ -61,7 +183,7 @@
 > ユーザー管理システムの開発
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 2/6: 技術スタック
+📋 Step 2/5: 技術スタック
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 使用する言語・フレームワークを選択してください:
@@ -81,7 +203,7 @@
 > 1
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 3/6: 品質基準
+📋 Step 3/5: 品質基準
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 カバレッジ目標を設定してください (デフォルト: 80%):
@@ -96,7 +218,7 @@ Lintツールを選択してください:
 > 1
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 4/6: GitHub連携
+📋 Step 4/5: GitHub連携
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 GitHubリポジトリURLを入力してください:
@@ -109,23 +231,7 @@ GitHubリポジトリURLを入力してください:
 > y
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 5/6: Docker環境
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-認証方式を選択してください:
-1. CLAUDE_CODE_OAUTH_TOKEN (Max Plan推奨)
-2. ANTHROPIC_API_KEY (API利用者向け)
-
-> 1
-
-Gemini CLI を使用しますか？ (y/n)
-> n
-
-最大並列ワーカー数 (デフォルト: 3):
-> 2
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Step 6/6: 確認
+📋 Step 5/5: 確認
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 以下の内容で初期化します:
@@ -138,9 +244,6 @@ Gemini CLI を使用しますか？ (y/n)
 Lintツール: ESLint
 GitHubリポジトリ: https://github.com/myorg/my-awesome-app
 デフォルトブランチ: main
-認証方式: CLAUDE_CODE_OAUTH_TOKEN
-Gemini CLI: 無効
-並列ワーカー数: 2
 
 この内容で初期化しますか？ (y/n)
 > y
@@ -150,8 +253,6 @@ Gemini CLI: 無効
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✅ CLAUDE.md を更新しました（デフォルトブランチ: main）
-✅ .aad/container/.env.example を更新しました
-✅ .aad/container/docker-compose.yml を更新しました
 ✅ .github/workflows/ にCI設定を追加しました
 ✅ README.md のリポジトリURLを更新しました
 
@@ -173,12 +274,6 @@ Gemini CLI: 無効
    /aad:tasks SPEC-001
 5. 開発を開始:
    /aad:worktree SPEC-001-T01
-
-または Docker環境で自動実行:
-   cd container
-   cp .env.example .env
-   # .env に CLAUDE_CODE_OAUTH_TOKEN を設定
-   docker-compose up -d
 ```
 
 ## 設定項目
@@ -206,12 +301,6 @@ Gemini CLI: 無効
 - Issue/PRラベル
 - マイルストーン設定
 
-### Docker環境
-- 認証方式
-- Gemini CLI有無
-- 並列ワーカー数
-- タイムアウト設定
-
 ### コーディングルール
 - 命名規則
 - コードスタイル
@@ -224,12 +313,6 @@ Gemini CLI: 無効
 
 ```
 /aad:init --quick
-```
-
-特定の設定のみ変更：
-
-```
-/aad:init --only=docker
 ```
 
 ## 再初期化
@@ -267,7 +350,6 @@ Gemini CLI: 無効
 - [ ] CLAUDE.mdのプロジェクト概要を確認
 - [ ] コーディングルールをチームと合意
 - [ ] 品質基準が適切か確認
-- [ ] Docker環境の認証情報を設定
 - [ ] GitHub Actionsの設定を確認
 - [ ] 最初のSPECファイルを作成
 

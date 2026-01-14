@@ -31,11 +31,6 @@ test -f .claude/scripts/context-bar.sh || { echo "❌ context-bar.sh not found";
 test -f .claude/scripts/install-to-new.sh || { echo "❌ install-to-new.sh not found"; exit 1; }
 test -f .claude/scripts/install-to-existing.sh || { echo "❌ install-to-existing.sh not found"; exit 1; }
 
-# Docker
-test -f .aad/container/Dockerfile || { echo "❌ Dockerfile not found"; exit 1; }
-test -f .aad/container/docker-compose.yml || { echo "❌ docker-compose.yml not found"; exit 1; }
-test -f .aad/container/.env.example || { echo "❌ .env.example not found"; exit 1; }
-
 # Templates
 test -f .aad/templates/SPEC-TEMPLATE.md || { echo "❌ SPEC-TEMPLATE.md not found"; exit 1; }
 test -f .aad/templates/TASK-TEMPLATE.md || { echo "❌ TASK-TEMPLATE.md not found"; exit 1; }

@@ -116,7 +116,7 @@
 ## 🔗 参考リソース
 
 - [CLAUDE.md](CLAUDE.md) - プロジェクト指示書
-- [SPEC-001.md](specs/SPEC-001.md) - 現在の仕様書
+- [SPEC-001.md](.aad/specs/SPEC-001.md) - 現在の仕様書
 - [GitHub Issues](https://github.com/your-org/your-repo/issues) - タスク管理
 - [関連PR](https://github.com/your-org/your-repo/pulls) - コードレビュー
 

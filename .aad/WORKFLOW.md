@@ -82,7 +82,7 @@ SPECを実装可能な小さなタスクに分割し、並列実行計画を立�
    - タスクID付与（SPEC-001-T01, T02...）
    - 複雑度推定（S/M/L）
    - 依存関係の明記
-   - タスクファイル作成（tasks/SPEC-001/）
+   - タスクファイル作成（.aad/tasks/SPEC-001/）
    - GitHub Issues作成（オプション、`--no-issues`でスキップ可）
    - HANDOFF.md更新
 
@@ -150,7 +150,7 @@ T05: ソーシャルログイン ← T02
 1. **worktree環境で作業**
    ```bash
    cd ../my-project-T01
-   claude --dangerously-skip-permissions  # Docker環境
+   claude --dangerously-skip-permissions
    ```
 
 2. **TDDサイクル**
@@ -376,7 +376,7 @@ gh pr ready  # DraftからOpenに変更
 
 ### 品質ゲート
 
-- [ ] docs/aad/retrospectives/にログが作成されている
+- [ ] .aad/retrospectives/にログが作成されている
 - [ ] Keep/Problem/Tryが記載されている
 - [ ] 技術的な学びが明記されている
 - [ ] CLAUDE.md更新提案がある
@@ -469,17 +469,23 @@ SPEC-001が完了しました！
 /aad:retro SPEC-001
 ```
 
-### 自動モード（AIが調整役）
+### 自動モード（AIが調整役、3層アーキテクチャ）
 
 ```bash
 # 1. SPEC作成・承認
 /aad:gate SPEC
 
-# 2. 全自動実行
+# 2. 全自動実行（3層構造で並列実行）
+# 親 → 子 (SPEC単位) → サブエージェント (Task単位)
 /aad:orchestrate SPEC-001
 
 # （自動で完了）
 ```
+
+**3層アーキテクチャの利点**:
+- SPEC単位での独立した開発
+- 子が軽微な判断を自律実行（人間への問い合わせ削減）
+- 複数SPECの並列実行が容易
 
 ### ハイブリッドモード
 
