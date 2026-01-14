@@ -15,6 +15,27 @@ echo -e "${GREEN}Autonomous AI-Driven Development Container${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Environment Validation
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# HOST_PROJECT_PATHのチェック
+if [[ -z "${HOST_PROJECT_PATH:-}" ]]; then
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}⚠️  WARNING: HOST_PROJECT_PATH is not set${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "  This may cause issues accessing project files."
+    echo "  Please set HOST_PROJECT_PATH in your .env file:"
+    echo ""
+    echo "    HOST_PROJECT_PATH=/path/to/your/project"
+    echo ""
+elif [[ ! -d "${HOST_PROJECT_PATH}" ]]; then
+    echo -e "${YELLOW}⚠️  WARNING: HOST_PROJECT_PATH directory not found: ${HOST_PROJECT_PATH}${NC}"
+fi
+
+echo ""
+
 # Detect role
 ROLE=${ROLE:-standalone}
 

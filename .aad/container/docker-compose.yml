@@ -14,9 +14,8 @@ services:
       # Optional: Gemini CLI
       # - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     volumes:
-      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
-      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
-      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # HOST_PROJECT_PATHは必須（未設定時はエラー）
+      - ${HOST_PROJECT_PATH:?⚠️ HOST_PROJECT_PATH is required. Set it in .env file}:${HOST_PROJECT_PATH}
       # .claudeディレクトリをマウント（コマンド・スクリプト共有）
       - ../.claude:/home/claude/.claude
     stdin_open: true
@@ -38,9 +37,8 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
     volumes:
-      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
-      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
-      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # HOST_PROJECT_PATHは必須（未設定時はエラー）
+      - ${HOST_PROJECT_PATH:?⚠️ HOST_PROJECT_PATH is required. Set it in .env file}:${HOST_PROJECT_PATH}
       # .claudeディレクトリをマウント（コマンド・スクリプト共有）
       - ../.claude:/home/claude/.claude
     stdin_open: true
@@ -64,9 +62,8 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - HOST_PROJECT_PATH=${HOST_PROJECT_PATH:-}
     volumes:
-      # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
-      # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
-      - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+      # HOST_PROJECT_PATHは必須（未設定時はエラー）
+      - ${HOST_PROJECT_PATH:?⚠️ HOST_PROJECT_PATH is required. Set it in .env file}:${HOST_PROJECT_PATH}
       # .claudeディレクトリをマウント（コマンド・スクリプト共有）
       - ../.claude:/home/claude/.claude
     stdin_open: true
@@ -93,9 +90,8 @@ services:
   #     # Optional: Gemini CLI
   #     # - GEMINI_API_KEY=${GEMINI_API_KEY:-}
   #   volumes:
-  #     # Git worktree使用時: HOST_PROJECT_PATHを設定して同一パスマウント
-  #     # 通常使用時: HOST_PROJECT_PATHを未設定（デフォルト動作: ../を/home/claude/workspaceにマウント）
-  #     - ${HOST_PROJECT_PATH:-.}:${HOST_PROJECT_PATH:-/home/claude/workspace}
+  #     # HOST_PROJECT_PATHは必須（未設定時はエラー）
+  #     - ${HOST_PROJECT_PATH:?⚠️ HOST_PROJECT_PATH is required. Set it in .env file}:${HOST_PROJECT_PATH}
   #     # .claudeディレクトリをマウント（コマンド・スクリプト共有）
   #     - ../.claude:/home/claude/.claude
   #   stdin_open: true

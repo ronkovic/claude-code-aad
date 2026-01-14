@@ -10,6 +10,25 @@ Claude Codeを使用した自律的AI駆動開発のためのDocker環境です�
 - Claude Code認証（OAuth TokenまたはAPI Key）
 - 8GB以上のメモリ推奨
 
+## ⚠️ 重要: HOST_PROJECT_PATHの設定
+
+`HOST_PROJECT_PATH`は**必須**です。プロジェクトルートの絶対パスを設定してください。
+
+```bash
+# .envファイルで設定
+HOST_PROJECT_PATH=/Users/yourname/workspace/my-project
+
+# または確認コマンド（プロジェクトルートで実行）
+echo "HOST_PROJECT_PATH=$(pwd)"
+```
+
+**未設定の場合の問題**:
+- コンテナ内から`.aad/tasks/`などにアクセスできない
+- Git操作が失敗する（特にworktree使用時）
+- プロジェクトファイルが見つからない
+
+---
+
 ## クイックスタート
 
 ### 1. 環境変数の設定

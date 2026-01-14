@@ -27,7 +27,7 @@ repos:
     hooks:
       - id: docker-compose-validate
         name: Validate docker-compose.yml
-        entry: bash -c 'cd .aad/container && docker compose config > /dev/null'
+        entry: bash -c 'cd .aad/container && HOST_PROJECT_PATH=/tmp/dummy docker compose config > /dev/null'
         language: system
         files: 'docker-compose\.yml$'
         pass_filenames: false
