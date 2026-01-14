@@ -567,5 +567,6 @@ git push
 
 - [COMMANDS.md](COMMANDS.md) - コマンドリファレンス
 - [QUALITY-GATES.md](QUALITY-GATES.md) - 品質ゲート詳細
+- [NAMING-CONVENTIONS.md](NAMING-CONVENTIONS.md) - 命名規則
 - [SETUP.md](SETUP.md) - 初期セットアップ
 - [CUSTOMIZE-CHECKLIST.md](CUSTOMIZE-CHECKLIST.md) - カスタマイズ手順

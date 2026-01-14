@@ -728,5 +728,6 @@ EOF
 
 - [WORKFLOW.md](WORKFLOW.md) - 6フェーズワークフロー詳細
 - [QUALITY-GATES.md](QUALITY-GATES.md) - 品質ゲート定義
+- [NAMING-CONVENTIONS.md](NAMING-CONVENTIONS.md) - 命名規則
 - [SETUP.md](SETUP.md) - 初期セットアップ
 - [CUSTOMIZE-CHECKLIST.md](CUSTOMIZE-CHECKLIST.md) - カスタマイズ手順

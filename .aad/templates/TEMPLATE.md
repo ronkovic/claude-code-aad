@@ -129,11 +129,11 @@
 
 ## 📋 使い方
 
-このテンプレートをコピーして、`retrospectives/YYYY-MM-DD-SPEC-XXX.md` として保存してください。
+このテンプレートをコピーして、`.aad/retrospectives/RETRO-SPEC-XXX-YYYYMMDD.md` として保存してください。
 
 **ファイル名の例**:
-- `2026-01-15-SPEC-001.md`
-- `2026-01-20-SPEC-002.md`
+- `RETRO-SPEC-001-20260115.md`
+- `RETRO-SPEC-002-20260120.md`
 
 **作成タイミング**:
 - SPECの全タスクが完了したとき
