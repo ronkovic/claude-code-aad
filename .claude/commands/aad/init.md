@@ -265,15 +265,27 @@ GitHubリポジトリ: https://github.com/myorg/my-awesome-app
 🎉 初期化完了！
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+報告。初期化が完了しました。
+
 次のステップ:
-1. CLAUDE.md を確認してプロジェクトルールを調整
-2. .aad/specs/ に最初のSPECファイルを作成
-   cp .aad/templates/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
-3. SPEC-001.md を編集して仕様を記述
-4. タスクに分割:
-   /aad:tasks SPEC-001
-5. 開発を開始:
-   /aad:worktree SPEC-001-T01
+
+1️⃣ CLAUDE.md を確認
+解。プロジェクトのルールブックです。
+ゲームの説明書に相当します。
+
+2️⃣ 最初のSPECを作成
+cp .aad/templates/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
+解。「何を作るか」の設計図です。
+料理のレシピに相当します。
+
+3️⃣ タスクに分割
+/aad:tasks SPEC-001
+解。大きな仕事を小さく分けます。
+パズルのピース分けです。
+
+4️⃣ 開発を開始
+/aad:worktree SPEC-001-T01
+提案。最初のタスクから着手を推奨します。
 ```
 
 ## 設定項目
