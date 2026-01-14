@@ -21,7 +21,7 @@ SPEC → TASKS → TDD → REVIEW → RETRO → MERGE
 
 1. **SPEC-TEMPLATE.md をコピー**
    ```bash
-   cp docs/aad/specs/SPEC-TEMPLATE.md docs/aad/specs/SPEC-001.md
+   cp .aad/templates/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
    ```
 
 2. **仕様書を記入**

@@ -167,7 +167,7 @@ Gemini CLI: 無効
 次のステップ:
 1. CLAUDE.md を確認してプロジェクトルールを調整
 2. .aad/specs/ に最初のSPECファイルを作成
-   cp .aad/specs/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
+   cp .aad/templates/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
 3. SPEC-001.md を編集して仕様を記述
 4. タスクに分割:
    /aad:tasks SPEC-001

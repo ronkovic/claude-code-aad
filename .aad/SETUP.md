@@ -101,10 +101,10 @@ claude
 
 ```bash
 # テンプレートをコピー
-cp docs/aad/specs/SPEC-TEMPLATE.md docs/aad/specs/SPEC-001.md
+cp .aad/templates/SPEC-TEMPLATE.md .aad/specs/SPEC-001.md
 
 # 仕様書を編集
-vim docs/aad/specs/SPEC-001.md  # or code, nano, etc.
+vim .aad/specs/SPEC-001.md  # or code, nano, etc.
 ```
 
 ### 4. 開発開始
@@ -165,12 +165,13 @@ cd /path/to/your-project
 | `CLAUDE.md` | AAD必須セクションを末尾に追記 |
 | `.gitignore` | AADエントリを追記（重複チェック） |
 | `.claude/` | `commands/aad/` と `scripts/` をマージ |
-| `docs/` | `docs/aad/` サブフォルダとして配置 |
-| `aad/container/` | `aad-aad/container/` として配置 |
-| `docs/aad/specs/` | `SPEC-TEMPLATE.md` のみ追加 |
-| `docs/aad/tasks/` | ディレクトリ作成のみ |
-| `docs/aad/retrospectives/` | `RETRO-TEMPLATE.md` のみ追加 |
-| `aad/worktrees/` | ディレクトリ作成のみ |
+| `docs/` | `.aad/` として配置 |
+| `.aad/container/` | `.aad/container/` として配置 |
+| `.aad/templates/` | 全テンプレート（SPEC/TASK/RETRO/TEMPLATE.md）を配置 |
+| `.aad/specs/` | ディレクトリ作成のみ（テンプレートは`.aad/templates/`） |
+| `.aad/tasks/` | ディレクトリ作成のみ（テンプレートは`.aad/templates/`） |
+| `.aad/retrospectives/` | ディレクトリ作成のみ（テンプレートは`.aad/templates/`） |
+| `.aad/worktrees/` | ディレクトリ作成のみ |
 | `HANDOFF.md` | 新規作成（既存なら警告） |
 | `README.md` | **コピーしない**（既存を維持） |
 

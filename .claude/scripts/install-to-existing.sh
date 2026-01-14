@@ -105,8 +105,6 @@ if [ "$GITIGNORE_EXISTS" = true ]; then
 .aad/container/.env
 .aad/container-aad/.env
 .aad/retrospectives/*.md
-!.aad/retrospectives/RETRO-TEMPLATE.md
-!.aad/retrospectives/TEMPLATE.md
 !.aad/retrospectives/.gitkeep
 GITIGNORE_SECTION
     echo "  ✅ .gitignore にAADエントリを追記しました"
@@ -145,20 +143,21 @@ EOF
 fi
 
 # 4. ディレクトリ作成
-mkdir -p "$TARGET_DIR/.aad/specs" \
+mkdir -p "$TARGET_DIR/.aad/templates" \
+         "$TARGET_DIR/.aad/specs" \
          "$TARGET_DIR/.aad/tasks" \
          "$TARGET_DIR/.aad/retrospectives" \
          "$TARGET_DIR/.aad/worktrees"
 
 # 5. テンプレートファイル
-[ ! -f "$TARGET_DIR/.aad/specs/SPEC-TEMPLATE.md" ] && \
-  cp "$TEMPLATE_ROOT/.aad/specs/SPEC-TEMPLATE.md" "$TARGET_DIR/.aad/specs/"
-[ ! -f "$TARGET_DIR/.aad/retrospectives/RETRO-TEMPLATE.md" ] && \
-  cp "$TEMPLATE_ROOT/.aad/retrospectives/RETRO-TEMPLATE.md" "$TARGET_DIR/.aad/retrospectives/"
-[ ! -f "$TARGET_DIR/.aad/retrospectives/TEMPLATE.md" ] && \
-  cp "$TEMPLATE_ROOT/.aad/retrospectives/TEMPLATE.md" "$TARGET_DIR/.aad/retrospectives/" 2>/dev/null || true
-[ ! -f "$TARGET_DIR/.aad/tasks/TASK-TEMPLATE.md" ] && \
-  cp "$TEMPLATE_ROOT/.aad/tasks/TASK-TEMPLATE.md" "$TARGET_DIR/.aad/tasks/" 2>/dev/null || true
+[ ! -f "$TARGET_DIR/.aad/templates/SPEC-TEMPLATE.md" ] && \
+  cp "$TEMPLATE_ROOT/.aad/templates/SPEC-TEMPLATE.md" "$TARGET_DIR/.aad/templates/"
+[ ! -f "$TARGET_DIR/.aad/templates/TASK-TEMPLATE.md" ] && \
+  cp "$TEMPLATE_ROOT/.aad/templates/TASK-TEMPLATE.md" "$TARGET_DIR/.aad/templates/"
+[ ! -f "$TARGET_DIR/.aad/templates/RETRO-TEMPLATE.md" ] && \
+  cp "$TEMPLATE_ROOT/.aad/templates/RETRO-TEMPLATE.md" "$TARGET_DIR/.aad/templates/"
+[ ! -f "$TARGET_DIR/.aad/templates/TEMPLATE.md" ] && \
+  cp "$TEMPLATE_ROOT/.aad/templates/TEMPLATE.md" "$TARGET_DIR/.aad/templates/"
 
 # 6. HANDOFF.md
 [ ! -f "$TARGET_DIR/HANDOFF.md" ] && cp "$TEMPLATE_ROOT/HANDOFF.md" "$TARGET_DIR/"

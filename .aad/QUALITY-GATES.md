@@ -428,9 +428,9 @@ npm audit
 
 #### 必須項目
 
-- [ ] **docs/aad/retrospectives/にログ作成**
+- [ ] **.aad/retrospectives/にログ作成**
   - ファイル名: `RETRO-SPEC-XXX-YYYYMMDD.md`
-  - RETRO-TEMPLATEを使用
+  - `.aad/templates/RETRO-TEMPLATE.md`を使用
   - 全セクションを記入
 
 - [ ] **Keep/Problem/Try記載**

@@ -1,10 +1,8 @@
 # AAD Worktrees（並列開発用）
 .aad/worktrees/
 
-# AAD Retrospectives
+# AAD Retrospectives（生成されたファイルのみ無視）
 .aad/retrospectives/*.md
-!.aad/retrospectives/RETRO-TEMPLATE.md
-!.aad/retrospectives/TEMPLATE.md
 !.aad/retrospectives/.gitkeep
 
 # 環境変数

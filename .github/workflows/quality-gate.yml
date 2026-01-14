@@ -53,8 +53,10 @@ jobs:
           test -f .aad/container/.env.example || { echo "❌ .env.example not found"; exit 1; }
 
           # Templates
-          test -f .aad/specs/SPEC-TEMPLATE.md || { echo "❌ SPEC-TEMPLATE.md not found"; exit 1; }
-          test -f .aad/tasks/TASK-TEMPLATE.md || { echo "❌ TASK-TEMPLATE.md not found"; exit 1; }
+          test -f .aad/templates/SPEC-TEMPLATE.md || { echo "❌ SPEC-TEMPLATE.md not found"; exit 1; }
+          test -f .aad/templates/TASK-TEMPLATE.md || { echo "❌ TASK-TEMPLATE.md not found"; exit 1; }
+          test -f .aad/templates/RETRO-TEMPLATE.md || { echo "❌ RETRO-TEMPLATE.md not found"; exit 1; }
+          test -f .aad/templates/TEMPLATE.md || { echo "❌ TEMPLATE.md not found"; exit 1; }
 
           # Documentation
           test -f .aad/WORKFLOW.md || { echo "❌ WORKFLOW.md not found"; exit 1; }

@@ -127,16 +127,16 @@ else
 fi
 echo "  ✅ .aad/worktrees/ を作成しました"
 
-# .aad/retrospectivesのテンプレート以外を削除
-find "$TARGET_DIR/.aad/retrospectives" -name "*.md" ! -name "RETRO-TEMPLATE.md" ! -name "TEMPLATE.md" -delete 2>/dev/null || true
+# .aad/retrospectivesのファイルを削除（テンプレートは別ディレクトリ）
+find "$TARGET_DIR/.aad/retrospectives" -name "*.md" -delete 2>/dev/null || true
 
 # .aad/tasksを空に
 rm -rf "$TARGET_DIR/.aad/tasks/"*
 mkdir -p "$TARGET_DIR/.aad/tasks"
 touch "$TARGET_DIR/.aad/tasks/.gitkeep"
 
-# .aad/specsのテンプレート以外を削除
-find "$TARGET_DIR/.aad/specs" -name "*.md" ! -name "SPEC-TEMPLATE.md" -delete 2>/dev/null || true
+# .aad/specsのファイルを削除（テンプレートは別ディレクトリ）
+find "$TARGET_DIR/.aad/specs" -name "*.md" -delete 2>/dev/null || true
 
 # .claude/settings.jsonが存在しない場合のみ作成
 if [ ! -f "$TARGET_DIR/.claude/settings.json" ]; then

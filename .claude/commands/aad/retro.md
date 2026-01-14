@@ -6,7 +6,7 @@ SPEC完了後に振り返りを実行し、学びを蓄積します。
 
 1. **振り返りログの作成**
    - `.aad/retrospectives/RETRO-[SPEC-ID]-[日付].md` を作成
-   - RETRO-TEMPLATE.md をベースに使用
+   - `.aad/templates/RETRO-TEMPLATE.md` をベースに使用
    - 完了したタスク、成功・失敗したアプローチ、学びをまとめる
 
 2. **品質ゲート分析**
