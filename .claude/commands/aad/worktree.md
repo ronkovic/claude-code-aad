@@ -115,3 +115,31 @@ claude --dangerously-skip-permissions
 - 複数のworktreeを同時に作成して並列開発が可能です
 - worktreeを削除する場合は `/aad:integrate` コマンドを使用してください
 - 手動削除する場合: `git worktree remove ../my-project-T01`
+
+## 🔴 重要: 出力指示
+
+worktree 作成完了後、**必ず以下の形式で「次のステップ」を目立つように表示すること**:
+
+### 必須出力フォーマット
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  重要: 別のターミナルで以下を実行してください
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+このセッションは統合用（親）として使用します。
+タスクの実装は、新しいターミナルで worktree 環境を開いてください。
+
+📋 実行コマンド（コピペしてください）:
+
+cd ../[worktree-name] && claude --dangerously-skip-permissions
+
+例: cd ../aad-demo-T01 && claude --dangerously-skip-permissions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 理由
+- 現在のセッションは統合・管理用
+- worktree は別プロセスで実装作業を行う
+- 並列開発のため、独立したClaude Codeセッションが必要
