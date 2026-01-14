@@ -1,5 +1,26 @@
 Write or update a handoff document (in Japanese) so the next agent with fresh context can continue this work.
 
+## 🔴 重要: 出力指示
+
+ハンドオフドキュメント作成後、**必ず以下の形式で出力すること**:
+
+### キーワード凡例
+- **解：** - 分析結果、答え
+- **告：** - システム通知、実行確認、異常完了報告
+- **確認：** - 検知、照合
+- **成功しました：** - 正常完了報告
+- **否：** - 否定
+
+### 必須出力フォーマット
+
+```
+成功しました：ハンドオフドキュメントを作成しました。
+解：パス: HANDOFF.md
+告：新しいセッションで上記ファイルを読み込んでください。
+```
+
+---
+
 Steps:
 1. Check if HANDOFF.md already exists in the project
 2. If it exists, read it first to understand prior context before updating

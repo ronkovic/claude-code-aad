@@ -170,16 +170,16 @@ else
     ctx="${bar} ${C_GRAY}~${pct}% of ${max_k}k tokens"
 fi
 
-# 70%ルール警告を追加
+# 70%ルール警告を追加（大賢者スタイル）
 warning=""
 if [[ $pct -ge 95 ]]; then
-    warning=" ⛔ 限界"
+    warning=" ⛔ 告：限界"
 elif [[ $pct -ge 85 ]]; then
-    warning=" 🔴 即座に/handoff"
+    warning=" 🔴 告：危機的"
 elif [[ $pct -ge 70 ]]; then
-    warning=" 🟠 /handoff推奨"
+    warning=" 🟠 告：警告レベル"
 elif [[ $pct -ge 50 ]]; then
-    warning=" 🟡 注意"
+    warning=" 🟡 告：中程度"
 fi
 
 # Build output: Model | Dir | Branch (uncommitted) | Context
