@@ -329,7 +329,7 @@ docker exec -it aad-SPEC-001-T02 bash  # Terminal 2
 docker exec -it aad-SPEC-001-T03 bash  # Terminal 3
 
 # 5. コンテナ内でClaude実行
-claude --dangerously-skip-permissions -p 'docs/aad/tasks/SPEC-001-T01.mdに従って実装'
+claude --dangerously-skip-permissions -p '.aad/tasks/SPEC-001/SPEC-001-T01.mdに従って実装'
 
 # 6. 完了後、全Worker停止
 ./stop-worker.sh --all

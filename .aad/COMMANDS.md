@@ -151,7 +151,7 @@ docker run --rm -it \
   -v /Users/yourname/workspace:/Users/yourname/workspace \
   -w /Users/yourname/workspace/my-project-T01 \
   autonomous-dev \
-  bash -c "claude --dangerously-skip-permissions -p 'docs/aad/tasks/SPEC-001-T01.mdに従って実装'"
+  bash -c "claude --dangerously-skip-permissions -p '.aad/tasks/SPEC-001/SPEC-001-T01.mdに従って実装'"
 
 # または docker-composeで
 echo 'HOST_PROJECT_PATH=/Users/yourname/workspace/my-project-T01' >> aad/container/.env
