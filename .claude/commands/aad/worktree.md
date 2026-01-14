@@ -136,6 +136,12 @@ cd ../[worktree-name] && claude --dangerously-skip-permissions
 
 例: cd ../aad-demo-T01 && claude --dangerously-skip-permissions
 
+💬 Claude 起動後のプロンプト例:
+
+[タスクID] の実装を開始
+
+例: SPEC-001-T01 の実装を開始
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
