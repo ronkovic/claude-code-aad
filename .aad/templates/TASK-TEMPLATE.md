@@ -11,7 +11,7 @@
 
 **優先度**: Must / Should / Could / Won't
 
-**GitHub Issue**: #XX
+**GitHub Issue**: #XX（オプション）
 
 **担当**: [名前 または AI Worker]
 
@@ -116,7 +116,7 @@
 ## 🔗 関連リンク
 
 - **SPEC**: [SPEC-XXX](../specs/SPEC-XXX.md)
-- **GitHub Issue**: [#XX](https://github.com/your-org/your-repo/issues/XX)
+- **GitHub Issue**: [#XX](https://github.com/your-org/your-repo/issues/XX)（オプション）
 - **PR**: [#YY](https://github.com/your-org/your-repo/pull/YY)
 - **Worktree**: `../[project-name]-TXX/`
 - **Branch**: `feature/SPEC-XXX-TXX`

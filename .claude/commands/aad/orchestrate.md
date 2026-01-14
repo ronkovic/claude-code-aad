@@ -10,7 +10,7 @@ SPECからタスク分割、並列開発、統合まで全て自動実行しま�
 
 2. **タスク分割**
    - `/aad:tasks SPEC-XXX` を実行
-   - GitHub Issues作成
+   - GitHub Issues作成（`--no-issues`未指定時）
 
 3. **依存関係解析**
    - タスク間の依存関係を解析
@@ -204,6 +204,7 @@ services:
 - `--workers=N`: 最大並列ワーカー数（デフォルト: 3）
 - `--no-docker`: ローカル環境で実行（非推奨）
 - `--pause-on-error`: エラー発生時に自動停止
+- `--no-issues`: GitHub Issues作成をスキップ
 
 ## 関連コマンド
 

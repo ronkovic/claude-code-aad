@@ -111,7 +111,8 @@ SPECが実装可能な小さなタスクに適切に分割されていること�
   - L（Large）: 8時間以上
   - L以上のタスクは分割を検討
 
-- [ ] **GitHub Issuesが作成**
+- [ ] **GitHub Issuesが作成**（オプション）
+  - `--no-issues`使用時はスキップ可
   - 各タスクに対応するIssue
   - ラベル設定（spec, priority, size）
   - マイルストーン設定
@@ -515,7 +516,8 @@ npm audit
   - マージコミットが存在
   - ブランチが削除済み（保持が必要な場合を除く）
 
-- [ ] **Issue閉鎖**
+- [ ] **Issue閉鎖**（GitHub連携使用時）
+  - GitHub Issues未使用の場合はスキップ
   - 対応するGitHub Issueがクローズ
   - クローズコメントに成果物リンク
   - 関連Issueも更新

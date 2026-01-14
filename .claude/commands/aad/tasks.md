@@ -1,6 +1,12 @@
-# タスク分割 + GitHub Issues作成
+# タスク分割 + GitHub Issues作成（オプション）
 
-SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issuesを作成します。
+SPEC仕様書を分析し、実装可能なタスクに分割します。`--no-issues`オプションでGitHub Issues作成をスキップできます。
+
+## オプション
+
+| オプション | 説明 |
+|-----------|------|
+| `--no-issues` | GitHub Issues作成をスキップ |
 
 ## 実行内容
 
@@ -18,7 +24,7 @@ SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issues
    - 各タスクのMarkdownファイルを作成
    - 実装内容、変更ファイル、テストケース、依存関係を記載
 
-4. **GitHub Issues作成**
+4. **GitHub Issues作成**（`--no-issues`未指定時）
    - `gh issue create` で各タスクのIssueを作成
    - ラベル: `spec:SPEC-XXX`, `priority:must/should/could`, `size:S/M/L`
    - マイルストーン: SPEC-XXX
@@ -94,7 +100,7 @@ SPEC-001をタスクに分割します...
 - [ ] 全タスクにIDが付与されている
 - [ ] 依存関係が明記されている
 - [ ] 複雑度（S/M/L）が設定されている
-- [ ] GitHub Issuesが作成されている
+- [ ] GitHub Issuesが作成されている（`--no-issues`未指定時）
 - [ ] HANDOFF.mdが更新されている
 - [ ] **⚠️ 人間承認必須**
 

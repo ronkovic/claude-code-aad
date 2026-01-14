@@ -16,7 +16,7 @@
    - `git worktree list` で現在のworktreeを表示
    - 各worktreeのブランチとタスクID
 
-4. **GitHub Issues同期**
+4. **GitHub Issues同期**（GitHub連携使用時）
    - `gh issue list` で各タスクのIssue状態を取得
    - Open/In Progress/Closedの数
 
@@ -89,6 +89,8 @@ SPEC: 2件
 
 worktree: 2個 アクティブ
 
+Issues: N/A（GitHub連携未使用）
+または
 Issues:
   ├─ Open: 4件
   ├─ In Progress: 2件
@@ -122,7 +124,7 @@ Pull Requests:
 
 ## 注意事項
 
-- GitHub CLIが設定されていることを確認してください（`gh auth status`）
+- GitHub CLIが設定されていることを確認してください（GitHub連携使用時）
 - worktreeの状態はローカルの情報を基に表示されます
 - CI状態の取得にはGitHub Actionsの設定が必要です
 - 定期的に実行して進捗を把握してください

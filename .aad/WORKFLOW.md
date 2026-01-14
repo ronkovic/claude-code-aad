@@ -83,7 +83,7 @@ SPECを実装可能な小さなタスクに分割し、並列実行計画を立�
    - 複雑度推定（S/M/L）
    - 依存関係の明記
    - タスクファイル作成（tasks/SPEC-001/）
-   - GitHub Issues作成
+   - GitHub Issues作成（オプション、`--no-issues`でスキップ可）
    - HANDOFF.md更新
 
 3. **タスク確認**
@@ -114,7 +114,7 @@ T05: ソーシャルログイン ← T02
 - [ ] 全タスクにID（SPEC-XXX-TXX）が付与されている
 - [ ] 依存関係が明記されている
 - [ ] 複雑度（S/M/L）が設定されている
-- [ ] GitHub Issuesが作成されている
+- [ ] GitHub Issuesが作成されている（GitHub連携使用時）
 - [ ] HANDOFF.mdが更新されている
 - [ ] **⚠️ 人間承認必須**
 
@@ -414,7 +414,7 @@ gh pr ready  # DraftからOpenに変更
    - `/aad:integrate`で自動削除済み
    - 手動削除の場合: `git worktree remove ../my-project-T01`
 
-3. **Issue閉鎖確認**
+3. **Issue閉鎖確認**（GitHub連携使用時）
    - GitHub Issuesが全て閉鎖されているか確認
 
 4. **デプロイ（該当する場合）**

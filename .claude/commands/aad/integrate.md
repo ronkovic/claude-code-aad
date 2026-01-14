@@ -18,7 +18,7 @@
    - Squash mergeをデフォルトで使用
    - ブランチを自動削除
 
-4. **Issue閉鎖**
+4. **Issue閉鎖**（GitHub連携使用時）
    - 対応するGitHub Issueを閉鎖
    - クローズコメントに成果物を記載
 
@@ -71,7 +71,7 @@
    ✅ PR #18 をマージしました
    ✅ ブランチ feature/SPEC-001-T01 を削除しました
 
-🔒 Issue閉鎖:
+🔒 Issue閉鎖:（GitHub連携使用時）
    ✅ Issue #12 を閉鎖しました
 
 🐳 Docker Worker停止:

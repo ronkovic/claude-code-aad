@@ -58,11 +58,12 @@
 
 ### `/aad:tasks`
 
-SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issuesを作成します。
+SPEC仕様書を分析し、実装可能なタスクに分割します（GitHub Issues作成はオプション）。
 
 **基本使用法**:
 ```
-/aad:tasks SPEC-001
+/aad:tasks SPEC-001              # タスク分割 + GitHub Issues作成
+/aad:tasks SPEC-001 --no-issues  # Issues作成をスキップ
 ```
 
 **実行内容**:
@@ -71,7 +72,7 @@ SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issues
 3. タスク分割（SPEC-001-T01, T02...）
 4. 複雑度推定（S/M/L）
 5. タスクファイル作成（tasks/SPEC-001/）
-6. GitHub Issues作成
+6. GitHub Issues作成（`--no-issues`未指定時）
 7. HANDOFF.md更新
 
 **出力例**:
@@ -88,7 +89,7 @@ SPEC仕様書を分析し、実装可能なタスクに分割してGitHub Issues
 - [ ] 全タスクにID付与
 - [ ] 依存関係明記
 - [ ] 複雑度設定
-- [ ] GitHub Issues作成
+- [ ] GitHub Issues作成（`--no-issues`未指定時）
 - [ ] ⚠️ 人間承認必須
 
 **関連コマンド**: `/aad:worktree`, `/aad:status`, `/aad:orchestrate`
