@@ -6,6 +6,7 @@ COMMANDS_DIR="$SCRIPT_DIR/../commands/aad"
 CONTEXT_BAR="$SCRIPT_DIR/context-bar.sh"
 STATE_FILE="$SCRIPT_DIR/../styles/.current-style"
 BACKUP_DIR="$SCRIPT_DIR/../styles/backups"
+MAX_BACKUPS=3
 
 # スタイル定義
 SAGE_KEYWORDS=(
@@ -32,6 +33,19 @@ init_dirs() {
   mkdir -p "$(dirname "$STATE_FILE")"
 }
 
+# 古いバックアップを削除
+cleanup_old_backups() {
+  local count
+  count=$(ls -1d "$BACKUP_DIR"/*/ 2>/dev/null | wc -l)
+  if (( count > MAX_BACKUPS )); then
+    local to_remove=$((count - MAX_BACKUPS))
+    ls -1d "$BACKUP_DIR"/*/ 2>/dev/null | head -n "$to_remove" | while read -r dir; do
+      rm -rf "$dir"
+      echo "古いバックアップを削除: $(basename "$dir")"
+    done
+  fi
+}
+
 # バックアップ作成
 backup() {
   init_dirs
@@ -44,6 +58,7 @@ backup() {
   cp "$COMMANDS_DIR"/*.md "$backup_path/commands/aad/"
   cp "$CONTEXT_BAR" "$backup_path/"
   echo "バックアップ作成: $backup_path"
+  cleanup_old_backups
 }
 
 # sage → standard 変換
@@ -168,5 +183,9 @@ case "${1:-}" in
   --restore)
     restore_backup "${2:-}"
     ;;
-  *)         echo "Usage: $0 {standard|sage|--current|--list|--list-backups|--restore [timestamp]|--dry-run <style>}" ;;
+  --cleanup)
+    cleanup_old_backups
+    echo "クリーンアップ完了"
+    ;;
+  *)         echo "Usage: $0 {standard|sage|--current|--list|--list-backups|--restore [timestamp]|--cleanup|--dry-run <style>}" ;;
 esac
