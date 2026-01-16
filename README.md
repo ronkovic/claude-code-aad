@@ -166,6 +166,31 @@ cd /path/to/your-project
 
 詳細は[WORKFLOW.md](.aad/WORKFLOW.md)を参照してください。
 
+## 🎭 出力スタイル切替
+
+AIの出力スタイルを切り替えることができます。
+
+| スタイル | 説明 |
+|----------|------|
+| `standard` | 標準スタイル（デフォルト）：「完了：」「結果：」「通知：」「エラー：」 |
+| `sage` | 大賢者風：「成功しました：」「解：」「告：」「否：」 |
+
+### 使用方法
+
+```bash
+# スタイル切替
+.claude/scripts/switch-style.sh standard   # 標準スタイルに変換
+.claude/scripts/switch-style.sh sage       # 大賢者スタイルに変換
+
+# 確認・管理
+.claude/scripts/switch-style.sh --current       # 現在のスタイル表示
+.claude/scripts/switch-style.sh --list-backups  # バックアップ一覧
+.claude/scripts/switch-style.sh --restore       # 最新バックアップから復元
+.claude/scripts/switch-style.sh --cleanup       # 古いバックアップを削除
+```
+
+詳細は [COMMANDS.md](.aad/COMMANDS.md#switch-stylesh---出力スタイル切替) を参照してください。
+
 ## 🎨 カスタマイズ
 
 このテンプレートは汎用的に設計されています。プロジェクトに合わせてカスタマイズする手順は[CUSTOMIZE-CHECKLIST.md](.aad/CUSTOMIZE-CHECKLIST.md)を参照してください。
