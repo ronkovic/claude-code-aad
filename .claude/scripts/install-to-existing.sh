@@ -188,9 +188,13 @@ if [ "$CLAUDE_DIR_EXISTS" = true ]; then
   mkdir -p "$TARGET_DIR/.claude/scripts"
   cp -r "$TEMPLATE_ROOT/.claude/commands/aad" "$TARGET_DIR/.claude/commands/"
   cp "$TEMPLATE_ROOT/.claude/scripts/"* "$TARGET_DIR/.claude/scripts/" 2>/dev/null || true
+  chmod +x "$TARGET_DIR/.claude/scripts/"*.sh 2>/dev/null || true
+  echo "  ✅ スクリプトに実行権限を付与しました"
   echo "  ✅ .claude/ にaadコマンドとスクリプトをマージしました"
 else
   cp -r "$TEMPLATE_ROOT/.claude" "$TARGET_DIR/"
+  chmod +x "$TARGET_DIR/.claude/scripts/"*.sh 2>/dev/null || true
+  echo "  ✅ スクリプトに実行権限を付与しました"
   echo "  ✅ .claude/ を作成しました"
 fi
 

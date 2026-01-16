@@ -111,6 +111,10 @@ mkdir -p "$TARGET_DIR/.aad/worktrees"
 touch "$TARGET_DIR/.aad/worktrees/.gitkeep"
 echo "  ✅ .aad/worktrees/ を作成しました"
 
+# スクリプトに実行権限を付与
+chmod +x "$TARGET_DIR/.claude/scripts/"*.sh 2>/dev/null || true
+echo "  ✅ スクリプトに実行権限を付与しました"
+
 # .aad/retrospectivesのファイルを削除（テンプレートは別ディレクトリ）
 find "$TARGET_DIR/.aad/retrospectives" -name "*.md" -delete 2>/dev/null || true
 
