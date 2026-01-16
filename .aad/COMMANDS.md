@@ -10,7 +10,6 @@
 - [ワークフロー](#ワークフロー)
 - [コンテキスト管理](#コンテキスト管理)
 - [品質管理](#品質管理)
-- [並列開発](#並列開発)
 
 ---
 
@@ -668,6 +667,40 @@ EOF
 | `detect-default-branch.sh` | デフォルトブランチの自動検出 |
 | `clone-conversation.sh` | `/aad:clone` コマンド用 |
 | `half-clone-conversation.sh` | `/aad:half-clone` コマンド用 |
+| `switch-style.sh` | 出力スタイル切替（sage ↔ standard） |
+
+### switch-style.sh - 出力スタイル切替
+
+AIの出力スタイルを「sage（大賢者）」と「standard（標準）」の間で切り替えます。
+
+**使用方法**:
+```bash
+.claude/scripts/switch-style.sh standard        # 標準スタイルに変換
+.claude/scripts/switch-style.sh sage            # 大賢者スタイルに変換
+.claude/scripts/switch-style.sh --current       # 現在のスタイル表示
+.claude/scripts/switch-style.sh --list          # 利用可能なスタイル一覧
+.claude/scripts/switch-style.sh --list-backups  # バックアップ一覧
+.claude/scripts/switch-style.sh --restore [name] # バックアップから復元
+.claude/scripts/switch-style.sh --dry-run <style> # 変換プレビュー
+```
+
+**スタイル変換マッピング**:
+
+| sage | standard |
+|------|----------|
+| `成功しました：` | `完了：` |
+| `解：` | `結果：` |
+| `告：` | `通知：` |
+| `否：` | `エラー：` |
+
+**変換対象ファイル**:
+- `.claude/commands/aad/*.md`
+- `.claude/scripts/context-bar.sh`
+
+**注意**:
+- 変換前に自動でバックアップが作成されます
+- バックアップは `.claude/styles/backups/` に保存されます
+- スクリプトは配置されているプロジェクト専用です
 
 ---
 
