@@ -1,0 +1,35 @@
+{
+  "feature": "phase8-quality-github",
+  "description": "品質チェックと GitHub PR 連携を実装し、完全な自動化を実現する。",
+  "language": "ja",
+  "phase": "initialized",
+  "created_at": "2026-01-18T00:00:00Z",
+  "updated_at": "2026-01-18T00:00:00Z",
+  "approvals": {
+    "requirements": {
+      "generated": false,
+      "approved": false
+    },
+    "design": {
+      "generated": false,
+      "approved": false
+    },
+    "tasks": {
+      "generated": false,
+      "approved": false
+    }
+  },
+  "metadata": {
+    "implementation_phase": 8,
+    "duration": "1週間",
+    "dependencies": [
+      "phase1-domain-foundation",
+      "phase2-config-workflow",
+      "phase3-cli-basic-commands",
+      "phase4-orchestration",
+      "phase5-persistence",
+      "phase6-tui-dashboard",
+      "phase7-task-loop"
+    ]
+  }
+}

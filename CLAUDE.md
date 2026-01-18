@@ -6,13 +6,13 @@
 
 ## 📋 プロジェクト概要
 
-**プロジェクト名**: [プロジェクト名を記入]
+**プロジェクト名**: claude-code-aad v2
 
-**目的**: [プロジェクトの目的を簡潔に記述]
+**目的**: Rust + Ratatui による自律型AI駆動開発ツール
 
-**開始日**: [YYYY-MM-DD]
+**開始日**: 2026-01-18
 
-**現在のフェーズ**: [SPEC / TASKS / TDD / REVIEW / RETRO / MERGE]
+**現在のフェーズ**: SPEC
 
 ---
 
@@ -20,7 +20,7 @@
 
 | 設定 | 値 |
 |------|-----|
-| デフォルトブランチ | `main` |
+| デフォルトブランチ | `docs/add-implementation-phases` |
 
 **注**: デフォルトブランチは `/aad:init` で自動検出されます。変更する場合はこの表を更新してください。
 
@@ -29,42 +29,45 @@
 ## 🛠️ 技術スタック
 
 ### 言語・フレームワーク
-- [例: TypeScript 5.x]
-- [例: React 18.x]
-- [例: Node.js 20.x]
+- Rust (Edition 2021)
+- Ratatui 0.28
+- tokio (非同期ランタイム)
+- clap (CLI)
+- git2 (Git操作)
 
 ### テストツール
-- [例: Jest]
-- [例: React Testing Library]
+- cargo test (標準テストフレームワーク)
+- cargo-llvm-cov (カバレッジ計測)
 
 ### Linter/Formatter
-- [例: ESLint]
-- [例: Prettier]
+- Clippy
+- rustfmt
 
 ### その他
-- [例: GitHub Actions]
-- [例: その他のツール]
+- GitHub Actions
+- handlebars (テンプレート)
+- serde + serde_json (シリアライズ)
+- toml (設定ファイル)
 
 ---
 
 ## 📐 コーディングルール
 
 ### 命名規則
-- **ファイル名**: kebab-case（例: `user-service.ts`）
-- **クラス名**: PascalCase（例: `UserService`）
-- **関数名**: camelCase（例: `getUserById`）
+- **ファイル名**: snake_case（例: `user_service.rs`）
+- **型名**: PascalCase（例: `UserService`）
+- **関数名**: snake_case（例: `get_user_by_id`）
 - **定数**: UPPER_SNAKE_CASE（例: `MAX_RETRY_COUNT`）
 
 ### コードスタイル
-- インデント: 2スペース
+- インデント: 4スペース（rustfmt標準）
 - 最大行長: 100文字
-- セミコロン: 必須
-- シングルクォート優先
+- rustfmtに準拠
 
 ### コメント
 - 複雑なロジックには必ずコメントを追加
 - TODOコメントには担当者とIssue番号を記載
-  ```typescript
+  ```rust
   // TODO(@username #123): ユーザー認証ロジックを追加
   ```
 
@@ -219,25 +222,25 @@ Closes #12
 ### 環境変数
 ```bash
 # .env.example を参照
-DATABASE_URL=
-API_KEY=
+ANTHROPIC_API_KEY=
 ```
 
-### 開発サーバー起動
+### ビルド・実行
 ```bash
-npm run dev
+cargo build
+cargo run
 ```
 
 ### テスト実行
 ```bash
-npm test
-npm run test:coverage
+cargo test
+cargo llvm-cov --html  # カバレッジ計測
 ```
 
 ### Lint実行
 ```bash
-npm run lint
-npm run lint:fix
+cargo clippy
+cargo fmt
 ```
 
 ---
@@ -248,5 +251,52 @@ npm run lint:fix
 
 ---
 
-**最終更新**: [YYYY-MM-DD]
-**更新者**: [名前またはClaude Code]
+**最終更新**: 2026-01-18
+**更新者**: Claude Code
+
+
+# AI-DLC and Spec-Driven Development
+
+Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life Cycle)
+
+## Project Context
+
+### Paths
+- Steering: `.kiro/steering/`
+- Specs: `.kiro/specs/`
+
+### Steering vs Specification
+
+**Steering** (`.kiro/steering/`) - Guide AI with project-wide rules and context
+**Specs** (`.kiro/specs/`) - Formalize development process for individual features
+
+### Active Specifications
+- Check `.kiro/specs/` for active specifications
+- Use `/kiro:spec-status [feature-name]` to check progress
+
+## Development Guidelines
+- Think in English, generate responses in Japanese. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
+
+## Minimal Workflow
+- Phase 0 (optional): `/kiro:steering`, `/kiro:steering-custom`
+- Phase 1 (Specification):
+  - `/kiro:spec-init "description"`
+  - `/kiro:spec-requirements {feature}`
+  - `/kiro:validate-gap {feature}` (optional: for existing codebase)
+  - `/kiro:spec-design {feature} [-y]`
+  - `/kiro:validate-design {feature}` (optional: design review)
+  - `/kiro:spec-tasks {feature} [-y]`
+- Phase 2 (Implementation): `/kiro:spec-impl {feature} [tasks]`
+  - `/kiro:validate-impl {feature}` (optional: after implementation)
+- Progress check: `/kiro:spec-status {feature}` (use anytime)
+
+## Development Rules
+- 3-phase approval workflow: Requirements → Design → Tasks → Implementation
+- Human review required each phase; use `-y` only for intentional fast-track
+- Keep steering current and verify alignment with `/kiro:spec-status`
+- Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
+
+## Steering Configuration
+- Load entire `.kiro/steering/` as project memory
+- Default files: `product.md`, `tech.md`, `structure.md`
+- Custom files are supported (managed via `/kiro:steering-custom`)
