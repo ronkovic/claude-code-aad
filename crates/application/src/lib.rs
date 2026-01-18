@@ -4,6 +4,7 @@
 //! Clean Architecture principles.
 
 pub mod error;
+pub mod loop_engine;
 pub mod orchestration;
 pub mod workflow;
 

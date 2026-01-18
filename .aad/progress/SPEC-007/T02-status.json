@@ -1,0 +1,47 @@
+{
+  "task_id": "SPEC-007-T02",
+  "status": "completed",
+  "completed_at": "2026-01-18T23:30:00Z",
+  "implementation_details": {
+    "files_created": [
+      "crates/application/src/loop_engine/mod.rs",
+      "crates/application/src/loop_engine/completion_detector.rs",
+      "config/completion-patterns.json"
+    ],
+    "files_modified": [
+      "crates/application/Cargo.toml",
+      "crates/application/src/lib.rs",
+      "crates/application/src/error.rs"
+    ],
+    "dependencies_added": [
+      "regex = \"1.10\""
+    ]
+  },
+  "acceptance_criteria": {
+    "AC-2.1": "config/completion-patterns.json ファイルが存在する",
+    "AC-2.2": "application/src/loop_engine/completion_detector.rs が実装されている",
+    "AC-2.3": "正規表現パターンマッチングが動作する",
+    "AC-2.4": "完了メッセージが検出される",
+    "AC-2.5": "複数パターンの OR 条件が設定可能である",
+    "AC-2.6": "パターンにマッチしない場合は未完了と判定される"
+  },
+  "test_cases_implemented": [
+    "test_single_pattern_matching",
+    "test_multiple_patterns_or_condition",
+    "test_regex_pattern_matching",
+    "test_empty_patterns_error",
+    "test_invalid_regex_pattern",
+    "test_from_config_success",
+    "test_from_config_invalid_json",
+    "test_from_config_empty_patterns",
+    "test_performance_under_10ms",
+    "test_no_match_returns_false",
+    "test_pattern_count"
+  ],
+  "next_steps": [
+    "cargo build -p application でビルド確認",
+    "cargo test -p application --lib loop_engine::completion_detector でテスト実行",
+    "cargo clippy -p application -- -D warnings でLint確認",
+    "cargo fmt でフォーマット適用"
+  ]
+}

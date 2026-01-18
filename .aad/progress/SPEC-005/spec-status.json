@@ -1,0 +1,22 @@
+{
+  "specId": "SPEC-005",
+  "status": "pending",
+  "currentWave": 0,
+  "tasks": {
+    "T01": { "status": "pending", "issue": "#41" },
+    "T02": { "status": "pending", "issue": "#42" },
+    "T03": { "status": "pending", "issue": "#43" },
+    "T04": { "status": "pending", "issue": "#44" },
+    "T05": { "status": "pending", "issue": "#45" },
+    "T06": { "status": "pending", "issue": "#46" },
+    "T07": { "status": "pending", "issue": "#47" }
+  },
+  "waves": [
+    { "wave": 1, "tasks": ["T01"] },
+    { "wave": 2, "tasks": ["T02", "T04", "T05", "T06"] },
+    { "wave": 3, "tasks": ["T03"] },
+    { "wave": 4, "tasks": ["T07"] }
+  ],
+  "prs": [],
+  "autonomousDecisions": []
+}

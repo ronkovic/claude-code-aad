@@ -1,0 +1,42 @@
+{
+  "specId": "SPEC-007",
+  "status": "completed",
+  "startedAt": "2026-01-18T00:00:00Z",
+  "completedAt": "2026-01-18T14:50:00Z",
+  "waves": [
+    {
+      "waveId": "wave-1",
+      "tasks": ["SPEC-007-T01", "SPEC-007-T02"],
+      "status": "completed",
+      "parallel": true
+    },
+    {
+      "waveId": "wave-2",
+      "tasks": ["SPEC-007-T03"],
+      "status": "completed",
+      "parallel": false
+    },
+    {
+      "waveId": "wave-3",
+      "tasks": ["SPEC-007-T04"],
+      "status": "completed",
+      "parallel": false
+    },
+    {
+      "waveId": "wave-4",
+      "tasks": ["SPEC-007-T05"],
+      "status": "completed",
+      "parallel": false
+    },
+    {
+      "waveId": "wave-5",
+      "tasks": ["SPEC-007-T06"],
+      "status": "completed",
+      "parallel": false,
+      "notes": "手動実行必要: cargo build/test/clippy/fmt/doc"
+    }
+  ],
+  "completedTasks": ["SPEC-007-T01", "SPEC-007-T02", "SPEC-007-T03", "SPEC-007-T04", "SPEC-007-T05", "SPEC-007-T06"],
+  "failedTasks": [],
+  "escalations": []
+}
