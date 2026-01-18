@@ -16,6 +16,10 @@ pub enum ApplicationError {
     /// Validation error.
     #[error("Validation error: {0}")]
     Validation(String),
+
+    /// Session already exists error.
+    #[error("Session already exists: {0}")]
+    SessionAlreadyExists(String),
 }
 
 /// Application layer result type.
