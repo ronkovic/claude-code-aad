@@ -1,0 +1,84 @@
+{
+  "specId": "SPEC-003",
+  "status": "completed",
+  "description": "CLI基本コマンド",
+  "startedAt": "2026-01-18T12:10:00Z",
+  "completedAt": "2026-01-18T13:10:00Z",
+  "lastUpdatedAt": "2026-01-18T13:10:00Z",
+  "tasks": [
+    {
+      "taskId": "SPEC-003-T01",
+      "name": "CLI クレート初期化",
+      "status": "completed",
+      "complexity": "S",
+      "startedAt": "2026-01-18T12:10:00Z",
+      "completedAt": "2026-01-18T12:15:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T02",
+      "name": "clap コマンド構造定義",
+      "status": "completed",
+      "complexity": "S",
+      "startedAt": "2026-01-18T12:15:00Z",
+      "completedAt": "2026-01-18T12:25:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T03",
+      "name": "DI コンテナ実装",
+      "status": "completed",
+      "complexity": "M",
+      "startedAt": "2026-01-18T12:15:00Z",
+      "completedAt": "2026-01-18T12:30:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T04",
+      "name": "init コマンド実装",
+      "status": "completed",
+      "complexity": "M",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:40:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T05",
+      "name": "spec コマンド実装",
+      "status": "completed",
+      "complexity": "S",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:45:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T06",
+      "name": "tasks コマンド実装",
+      "status": "completed",
+      "complexity": "M",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:50:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T07",
+      "name": "style コマンド実装",
+      "status": "completed",
+      "complexity": "M",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:55:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T08",
+      "name": "worktree コマンド実装",
+      "status": "completed",
+      "complexity": "M",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T13:00:00Z"
+    },
+    {
+      "taskId": "SPEC-003-T09",
+      "name": "品質チェック",
+      "status": "completed",
+      "complexity": "S",
+      "startedAt": "2026-01-18T13:00:00Z",
+      "completedAt": "2026-01-18T13:10:00Z"
+    }
+  ],
+  "completedTasks": 9,
+  "totalTasks": 9
+}

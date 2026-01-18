@@ -1,0 +1,13 @@
+[styles.standard]
+description = "標準的な出力スタイル"
+
+[styles.standard.tokens]
+role = "開発者"
+tone = "丁寧"
+
+[styles.sage]
+description = "賢者スタイル"
+
+[styles.sage.tokens]
+role = "賢者"
+tone = "落ち着いた"

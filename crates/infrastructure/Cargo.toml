@@ -1,0 +1,20 @@
+[package]
+name = "infrastructure"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Internal dependencies
+domain = { path = "../domain" }
+
+# Configuration
+toml = "0.8"
+
+# Workspace dependencies
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.8"

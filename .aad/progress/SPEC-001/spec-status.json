@@ -1,0 +1,61 @@
+{
+  "specId": "SPEC-001",
+  "status": "completed",
+  "tasks": [
+    {
+      "taskId": "SPEC-001-T01",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:00:00Z",
+      "completedAt": "2026-01-18T12:30:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T02",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:45:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T03",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:45:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T04",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:30:00Z",
+      "completedAt": "2026-01-18T12:45:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T05",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:45:00Z",
+      "completedAt": "2026-01-18T13:00:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T06",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:45:00Z",
+      "completedAt": "2026-01-18T13:00:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T07",
+      "status": "completed",
+      "startedAt": "2026-01-18T12:45:00Z",
+      "completedAt": "2026-01-18T13:00:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T08",
+      "status": "completed",
+      "startedAt": "2026-01-18T13:00:00Z",
+      "completedAt": "2026-01-18T13:15:00Z"
+    },
+    {
+      "taskId": "SPEC-001-T09",
+      "status": "completed",
+      "startedAt": "2026-01-18T13:15:00Z",
+      "completedAt": "2026-01-18T03:09:56Z",
+      "notes": "All quality checks passed: build, tests (92+2 doc tests), clippy, fmt, coverage, and documentation generation"
+    }
+  ]
+}

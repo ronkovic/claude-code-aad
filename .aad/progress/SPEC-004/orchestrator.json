@@ -1,0 +1,64 @@
+{
+  "specId": "SPEC-004",
+  "status": "in_progress",
+  "startedAt": "2026-01-18T14:00:00Z",
+  "tasks": [
+    {
+      "taskId": "SPEC-004-T01",
+      "name": "Orchestrator構造体実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 21
+    },
+    {
+      "taskId": "SPEC-004-T02",
+      "name": "DependencyGraph実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 22,
+      "dependencies": ["SPEC-004-T01"]
+    },
+    {
+      "taskId": "SPEC-004-T03",
+      "name": "セッション登録・起動ロジック実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 23,
+      "dependencies": ["SPEC-004-T01", "SPEC-004-T02"]
+    },
+    {
+      "taskId": "SPEC-004-T04",
+      "name": "モニターループ実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 24,
+      "dependencies": ["SPEC-004-T01", "SPEC-004-T03"]
+    },
+    {
+      "taskId": "SPEC-004-T05",
+      "name": "エスカレーション処理実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 25,
+      "dependencies": ["SPEC-004-T01", "SPEC-004-T04"]
+    },
+    {
+      "taskId": "SPEC-004-T06",
+      "name": "orchestrateコマンド実装",
+      "status": "pending",
+      "complexity": "M",
+      "issueNumber": 26,
+      "dependencies": ["SPEC-004-T01", "SPEC-004-T03", "SPEC-004-T04", "SPEC-004-T05"]
+    },
+    {
+      "taskId": "SPEC-004-T07",
+      "name": "--resume, --dry-runオプション実装",
+      "status": "pending",
+      "complexity": "S",
+      "issueNumber": 27,
+      "dependencies": ["SPEC-004-T06"]
+    }
+  ],
+  "totalTasks": 7,
+  "completedTasks": 0
+}

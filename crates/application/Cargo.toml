@@ -1,0 +1,14 @@
+[package]
+name = "application"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Internal dependencies
+domain = { path = "../domain" }
+
+# Workspace dependencies
+serde = { workspace = true }
+thiserror = { workspace = true }

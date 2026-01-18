@@ -1,0 +1,20 @@
+# AAD Configuration File
+# AI-driven Development Tool Configuration
+
+version = "0.1.0"
+
+# Context threshold (0-100)
+# When context usage exceeds this threshold, warnings will be displayed
+context_threshold = 70
+
+# Default Git branch
+default_branch = "main"
+
+[workflow]
+# Enable automatic phase transitions (requires approval)
+auto_transition = false
+
+# Workflow phases (in order)
+# Valid values: "Spec", "Tasks", "Tdd", "Review", "Retro", "Merge"
+# Note: phases は自動的にデフォルト値（全フェーズ）が使用されます
+# phases = ["Spec", "Tasks", "Tdd", "Review", "Retro", "Merge"]

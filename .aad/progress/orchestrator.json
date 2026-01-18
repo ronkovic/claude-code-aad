@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "startedAt": "2026-01-18T11:50:00Z",
+  "specs": [
+    {
+      "specId": "SPEC-001",
+      "status": "completed",
+      "taskId": "a906a97",
+      "startedAt": "2026-01-18T11:50:00Z",
+      "completedAt": "2026-01-18T03:09:56Z",
+      "totalTasks": 9,
+      "completedTasks": 9,
+      "escalations": []
+    },
+    {
+      "specId": "SPEC-002",
+      "status": "completed",
+      "taskId": "a5a9da4",
+      "startedAt": "2026-01-18T03:22:05Z",
+      "completedAt": "2026-01-18T12:00:00Z",
+      "totalTasks": 7,
+      "completedTasks": 7,
+      "escalations": []
+    },
+    {
+      "specId": "SPEC-003",
+      "status": "completed",
+      "taskId": "a09185c",
+      "startedAt": "2026-01-18T12:10:00Z",
+      "completedAt": "2026-01-18T13:15:00Z",
+      "totalTasks": 9,
+      "completedTasks": 9,
+      "escalations": []
+    }
+  ],
+  "status": "completed"
+}

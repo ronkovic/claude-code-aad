@@ -1,0 +1,7 @@
+version = "1.0"
+context_threshold = 70
+default_branch = "main"
+
+[workflow]
+phases = ["SPEC", "TASKS", "TDD", "REVIEW", "RETRO", "MERGE"]
+auto_transition = false
