@@ -4,8 +4,10 @@
 //! Clean Architecture principles.
 
 pub mod error;
+pub mod integration;
 pub mod loop_engine;
 pub mod orchestration;
+pub mod quality;
 pub mod workflow;
 
 // Re-export commonly used types

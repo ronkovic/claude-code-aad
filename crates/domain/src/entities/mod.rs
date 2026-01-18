@@ -5,6 +5,7 @@
 
 pub mod escalation;
 pub mod loop_state;
+pub mod quality_gate;
 pub mod session;
 pub mod spec;
 pub mod style;
@@ -14,6 +15,7 @@ pub mod workflow;
 // Re-export commonly used types
 pub use escalation::EscalationLog;
 pub use loop_state::LoopState;
+pub use quality_gate::{CheckStatus, QualityCheck, QualityGate};
 pub use session::Session;
 pub use spec::Spec;
 pub use style::Style;

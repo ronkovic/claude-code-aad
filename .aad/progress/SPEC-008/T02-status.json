@@ -1,0 +1,36 @@
+{
+  "task_id": "SPEC-008-T02",
+  "spec_id": "SPEC-008",
+  "status": "completed",
+  "started_at": "2026-01-19T01:08:00Z",
+  "completed_at": "2026-01-19T01:30:00Z",
+  "implementation_summary": {
+    "description": "gate コマンド実装（TDD方式）",
+    "files_created": [
+      "crates/cli/src/commands/gate_cmd.rs"
+    ],
+    "files_modified": [
+      "crates/cli/src/commands/mod.rs",
+      "crates/cli/src/main.rs"
+    ],
+    "tests_added": 9,
+    "acceptance_criteria": {
+      "AC-2.1": "✅ aad gate SPEC コマンドが実装されている",
+      "AC-2.2": "✅ SPECフェーズのゲート条件が検証される",
+      "AC-2.3": "✅ TASKSフェーズのゲート条件が検証される",
+      "AC-2.4": "✅ TDDフェーズのゲート条件が検証される",
+      "AC-2.5": "✅ 検証結果がコンソールに表示される（色分け付き）",
+      "AC-2.6": "✅ ゲート失敗時はエラーコード1で終了する"
+    }
+  },
+  "notes": [
+    "TDD方式で実装（テストファースト）",
+    "QualityServiceのAPIを活用",
+    "色分け出力機能を実装（緑：成功、赤：失敗）",
+    "SpecJsonRepo と TaskJsonRepo を使用",
+    "データパスは .aad/data/specs と .aad/data/tasks",
+    "9つのテストケースを実装（正常系・異常系）",
+    "colorize_report 関数でコンソール出力に色を追加",
+    "エラーハンドリングを適切に実装"
+  ]
+}

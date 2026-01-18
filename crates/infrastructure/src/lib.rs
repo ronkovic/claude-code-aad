@@ -3,6 +3,7 @@
 //! This crate contains infrastructure concerns such as configuration management,
 //! file I/O, and external service integrations following Clean Architecture principles.
 
+pub mod adapters;
 pub mod config;
 pub mod error;
 pub mod persistence;

@@ -1,0 +1,65 @@
+{
+  "task_id": "SPEC-008-T06",
+  "task_name": "CI/CD設定実装",
+  "status": "completed",
+  "started_at": "2026-01-19T00:00:00Z",
+  "completed_at": "2026-01-19T01:00:00Z",
+  "implementation_summary": {
+    "files_modified": [
+      ".github/workflows/quality-gate.yml"
+    ],
+    "jobs_added": [
+      "rust-build",
+      "rust-clippy",
+      "rust-test",
+      "rust-coverage",
+      "aad-gate"
+    ],
+    "features": [
+      "PR作成時の自動ゲートチェック",
+      "Rustビルド・Clippy・テスト実行",
+      "カバレッジ測定（80%閾値）",
+      "aad gate TDD統合",
+      "ゲート失敗時のPRブロック"
+    ]
+  },
+  "acceptance_criteria": {
+    "AC-6.1": {
+      "description": ".github/workflows/quality-gate.yml が実装されている",
+      "status": "passed"
+    },
+    "AC-6.2": {
+      "description": "PR作成時に自動でゲートチェックが実行される",
+      "status": "passed",
+      "notes": "pull_request: branches: [main] トリガー設定済み"
+    },
+    "AC-6.3": {
+      "description": "ビルド、Clippy、テストが実行される",
+      "status": "passed",
+      "notes": "rust-build, rust-clippy, rust-test ジョブ実装済み"
+    },
+    "AC-6.4": {
+      "description": "カバレッジが80%未満の場合は失敗する",
+      "status": "passed",
+      "notes": "rust-coverage ジョブで cargo llvm-cov による閾値チェック実装"
+    },
+    "AC-6.5": {
+      "description": "ゲート失敗時はPRがブロックされる",
+      "status": "passed",
+      "notes": "summary ジョブで全ジョブの結果を統合、失敗時 exit 1"
+    },
+    "AC-6.6": {
+      "description": "ゲート成功時は緑色のチェックマークが表示される",
+      "status": "passed",
+      "notes": "GitHub Actions標準機能により自動表示"
+    }
+  },
+  "notes": [
+    "既存の quality-gate.yml にRust関連のジョブを追加",
+    "テンプレート構造検証ジョブは維持",
+    "Cargo依存関係のキャッシュ機能を全ジョブに追加",
+    "dtolnay/rust-toolchain@stable を使用",
+    "taiki-e/install-action@cargo-llvm-cov でカバレッジツール導入",
+    "aad gate TDD を統合して品質ゲートを強化"
+  ]
+}

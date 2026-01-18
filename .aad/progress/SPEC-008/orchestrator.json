@@ -1,0 +1,44 @@
+{
+  "spec_id": "SPEC-008",
+  "status": "in_progress",
+  "started_at": "2026-01-18T16:00:00Z",
+  "tasks": [
+    {
+      "task_id": "SPEC-008-T01",
+      "status": "pending",
+      "wave": 1
+    },
+    {
+      "task_id": "SPEC-008-T02",
+      "status": "pending",
+      "wave": 2
+    },
+    {
+      "task_id": "SPEC-008-T03",
+      "status": "pending",
+      "wave": 1
+    },
+    {
+      "task_id": "SPEC-008-T04",
+      "status": "pending",
+      "wave": 2
+    },
+    {
+      "task_id": "SPEC-008-T05",
+      "status": "pending",
+      "wave": 1,
+      "priority": "should_have"
+    },
+    {
+      "task_id": "SPEC-008-T06",
+      "status": "pending",
+      "wave": 3
+    }
+  ],
+  "current_wave": 1,
+  "waves": {
+    "1": ["T01", "T03", "T05"],
+    "2": ["T02", "T04"],
+    "3": ["T06"]
+  }
+}

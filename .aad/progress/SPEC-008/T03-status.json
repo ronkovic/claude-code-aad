@@ -1,0 +1,74 @@
+{
+  "task_id": "SPEC-008-T03",
+  "task_name": "GhCliAdapter実装",
+  "status": "completed",
+  "completed_at": "2026-01-19T01:10:00Z",
+  "acceptance_criteria": {
+    "AC-3.1": {
+      "description": "GhCliAdapter構造体が定義されている",
+      "status": "✓",
+      "evidence": "crates/infrastructure/src/adapters/gh_cli_adapter.rs:11-14"
+    },
+    "AC-3.2": {
+      "description": "create_pr(title, body, base)メソッドが実装されている",
+      "status": "✓",
+      "evidence": "crates/infrastructure/src/adapters/gh_cli_adapter.rs:45-67"
+    },
+    "AC-3.3": {
+      "description": "merge_pr(number, strategy)メソッドが実装されている",
+      "status": "✓",
+      "evidence": "crates/infrastructure/src/adapters/gh_cli_adapter.rs:69-98"
+    },
+    "AC-3.4": {
+      "description": "create_issue(title, body, labels)メソッドが実装されている",
+      "status": "✓",
+      "evidence": "crates/infrastructure/src/adapters/gh_cli_adapter.rs:100-129"
+    },
+    "AC-3.5": {
+      "description": "ghコマンドのエラーが適切にハンドリングされる",
+      "status": "✓",
+      "evidence": "PersistenceError::CommandError, InvalidInput, ParseError追加"
+    },
+    "AC-3.6": {
+      "description": "PR番号、Issue番号が出力から正しくパースされる",
+      "status": "✓",
+      "evidence": "parse_pr_number, parse_issue_number メソッド実装"
+    }
+  },
+  "files_changed": [
+    "crates/infrastructure/src/adapters/mod.rs (新規)",
+    "crates/infrastructure/src/adapters/gh_cli_adapter.rs (新規)",
+    "crates/infrastructure/src/lib.rs (adaptersモジュール追加)",
+    "crates/infrastructure/src/persistence/error.rs (CommandError, InvalidInput, ParseError追加)",
+    "crates/application/src/integration/mod.rs (新規)",
+    "crates/application/src/integration/integration_service.rs (新規)",
+    "crates/application/src/lib.rs (integrationモジュール追加)",
+    "crates/application/src/error.rs (ExternalServiceError追加)",
+    "crates/application/Cargo.toml (infrastructure依存追加)"
+  ],
+  "tests_written": [
+    "test_new_creates_adapter_with_default_path",
+    "test_with_path_creates_adapter_with_custom_path",
+    "test_parse_pr_number_extracts_number",
+    "test_parse_pr_number_fails_on_invalid_output",
+    "test_parse_issue_number_extracts_number",
+    "test_parse_issue_number_fails_on_invalid_output",
+    "test_merge_pr_rejects_invalid_strategy",
+    "test_default_trait",
+    "test_new_creates_service",
+    "test_default_trait (IntegrationService)",
+    "test_with_adapter_creates_service_with_custom_adapter"
+  ],
+  "notes": [
+    "TDD方式で実装: テストを先に作成してから実装",
+    "GhCliAdapterはstd::process::Commandを使用してghコマンドを実行",
+    "エラーハンドリングは3つの新しいPersistenceErrorバリアントで対応",
+    "IntegrationServiceはApplication層のサービスとして実装",
+    "gh_pathフィールドはpub(crate)で可視性を制限"
+  ],
+  "next_steps": [
+    "cargo test --all を実行してすべてのテストがpassすることを確認",
+    "cargo clippy --all を実行してClippyが通ることを確認",
+    "実際のgh CLIとの統合テストを実施"
+  ]
+}
