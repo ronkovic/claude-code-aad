@@ -24,6 +24,11 @@ fn main() -> anyhow::Result<()> {
             StyleAction::Apply { style_name } => commands::style::apply(&style_name)?,
         },
         Commands::Worktree { spec_id } => commands::worktree::execute(&spec_id)?,
+        Commands::Orchestrate { specs } => {
+            // Create tokio runtime for async orchestrate command
+            let rt = tokio::runtime::Runtime::new()?;
+            rt.block_on(commands::orchestrate::execute(&specs))?;
+        }
     }
 
     Ok(())

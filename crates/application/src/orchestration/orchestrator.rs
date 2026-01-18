@@ -24,6 +24,7 @@ pub type SessionId = String;
 /// - Parallel execution of sessions
 /// - Monitoring session progress
 /// - Handling escalations
+/// - Retry management for failed sessions
 ///
 /// # Tokio Runtime Integration
 ///
@@ -45,6 +46,9 @@ pub struct Orchestrator {
 
     /// Dependency graph for managing spec execution order.
     dependency_graph: Arc<RwLock<DependencyGraph>>,
+
+    /// Retry counts for each session.
+    retry_counts: Arc<RwLock<HashMap<SessionId, usize>>>,
 }
 
 impl Orchestrator {
@@ -65,6 +69,7 @@ impl Orchestrator {
             session_statuses: Arc::new(RwLock::new(HashMap::new())),
             session_start_times: Arc::new(RwLock::new(HashMap::new())),
             dependency_graph: Arc::new(RwLock::new(DependencyGraph::new())),
+            retry_counts: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
@@ -123,13 +128,17 @@ impl Orchestrator {
         let removed_session = sessions.remove(session_id);
         drop(sessions);
 
-        // Also remove from statuses and start times
+        // Also remove from statuses, start times, and retry counts
         let mut statuses = self.session_statuses.write().await;
         statuses.remove(session_id);
         drop(statuses);
 
         let mut start_times = self.session_start_times.write().await;
         start_times.remove(session_id);
+        drop(start_times);
+
+        let mut retry_counts = self.retry_counts.write().await;
+        retry_counts.remove(session_id);
 
         removed_session
     }
@@ -430,6 +439,211 @@ impl Orchestrator {
 
         // 4. 親セッション通知（将来実装 - 現在はログのみ）
         // TODO: Implement parent session notification
+
+        Ok(())
+    }
+
+    /// Handles successful session completion.
+    ///
+    /// This method performs cleanup tasks when a session completes successfully,
+    /// including updating status, removing retry counts, and logging.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the completed session
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if the completion was handled successfully, or an error if the session
+    /// doesn't exist.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use application::orchestration::{Orchestrator, OrchestratorConfig};
+    /// use domain::value_objects::{SpecId, Phase};
+    ///
+    /// # async {
+    /// let config = OrchestratorConfig::default();
+    /// let orchestrator = Orchestrator::new(config);
+    ///
+    /// let spec_id = SpecId::new();
+    /// let session_id = orchestrator.register_spec(&spec_id, Phase::Tdd).await.unwrap();
+    /// orchestrator.start_session(&session_id).await.unwrap();
+    ///
+    /// // After session completes
+    /// orchestrator.handle_session_completion(&session_id).await.unwrap();
+    /// # };
+    /// ```
+    pub async fn handle_session_completion(&self, session_id: &SessionId) -> Result<()> {
+        // 1. セッション取得
+        let session = self.get_session(session_id).await.ok_or_else(|| {
+            ApplicationError::Validation(format!("Session not found: {}", session_id))
+        })?;
+
+        // 2. ステータスをCompletedに更新
+        self.mark_session_completed(session_id).await;
+
+        // 3. クリーンアップ（retry_countsから削除）
+        let mut retry_counts = self.retry_counts.write().await;
+        retry_counts.remove(session_id);
+        drop(retry_counts);
+
+        // 4. ログ出力
+        eprintln!(
+            "[HANDLER:INFO] ✅ Session completed: {} (Spec: {})",
+            session_id, session.spec_id
+        );
+
+        // 5. 依存セッションへの通知（将来実装）
+        // TODO: Notify dependent sessions
+
+        Ok(())
+    }
+
+    /// Handles session failure with retry logic.
+    ///
+    /// This method is called when a session fails. It determines whether to retry
+    /// the session or roll it back based on the retry count and configuration.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the failed session
+    /// * `reason` - The failure reason
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if the failure was handled successfully.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use application::orchestration::{Orchestrator, OrchestratorConfig};
+    /// use domain::value_objects::{SpecId, Phase};
+    ///
+    /// # async {
+    /// let config = OrchestratorConfig::default();
+    /// let orchestrator = Orchestrator::new(config);
+    ///
+    /// let spec_id = SpecId::new();
+    /// let session_id = orchestrator.register_spec(&spec_id, Phase::Tdd).await.unwrap();
+    ///
+    /// // Handle failure
+    /// orchestrator.handle_session_failure(&session_id, "Test failed").await.unwrap();
+    /// # };
+    /// ```
+    pub async fn handle_session_failure(
+        &self,
+        session_id: &SessionId,
+        reason: &str,
+    ) -> Result<()> {
+        // 1. エスカレーション
+        self.escalate(session_id, EscalationLevel::Error, reason)
+            .await?;
+
+        // 2. リトライ判定
+        if self.should_retry(session_id).await {
+            // リトライ可能
+            self.retry_session(session_id).await?;
+        } else {
+            // リトライ不可 - ロールバック
+            self.rollback_session(session_id).await?;
+        }
+
+        Ok(())
+    }
+
+    /// Determines if a session should be retried.
+    ///
+    /// Checks the current retry count against the maximum configured attempts.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the session
+    ///
+    /// # Returns
+    ///
+    /// true if the session should be retried, false otherwise.
+    async fn should_retry(&self, session_id: &SessionId) -> bool {
+        let retry_counts = self.retry_counts.read().await;
+        let current_count = retry_counts.get(session_id).copied().unwrap_or(0);
+        current_count < self.config.max_retry_attempts
+    }
+
+    /// Retries a failed session.
+    ///
+    /// Increments the retry count, waits for the configured delay, and restarts
+    /// the session.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the session to retry
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if the retry was initiated successfully.
+    async fn retry_session(&self, session_id: &SessionId) -> Result<()> {
+        // 1. リトライ回数を更新
+        let mut retry_counts = self.retry_counts.write().await;
+        let current_count = retry_counts.get(session_id).copied().unwrap_or(0);
+        let new_count = current_count + 1;
+        retry_counts.insert(session_id.clone(), new_count);
+        drop(retry_counts);
+
+        // 2. ログ出力
+        eprintln!(
+            "[HANDLER:RETRY] 🔄 Retrying session: {} (Attempt {}/{})",
+            session_id, new_count, self.config.max_retry_attempts
+        );
+
+        // 3. 遅延処理
+        let delay = Duration::from_secs(self.config.retry_delay_secs);
+        tokio::time::sleep(delay).await;
+
+        // 4. ステータスをPendingにリセット
+        let mut statuses = self.session_statuses.write().await;
+        statuses.insert(session_id.clone(), SessionStatus::Pending);
+        drop(statuses);
+
+        // 5. セッション再起動
+        self.start_session(session_id).await?;
+
+        Ok(())
+    }
+
+    /// Rolls back a failed session.
+    ///
+    /// Performs cleanup when a session has failed and exceeded retry attempts.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the session to roll back
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if the rollback was successful.
+    async fn rollback_session(&self, session_id: &SessionId) -> Result<()> {
+        // 1. ログ出力
+        eprintln!(
+            "[HANDLER:ROLLBACK] ⚠️  Rolling back session: {} (Max retries exceeded)",
+            session_id
+        );
+
+        // 2. ステータスをFailedに設定
+        self.mark_session_failed(session_id).await;
+
+        // 3. retry_countsから削除
+        let mut retry_counts = self.retry_counts.write().await;
+        retry_counts.remove(session_id);
+        drop(retry_counts);
+
+        // 4. start_timesから削除
+        let mut start_times = self.session_start_times.write().await;
+        start_times.remove(session_id);
+        drop(start_times);
+
+        // 5. リソースのクリーンアップ
+        // TODO: Add additional cleanup if needed
 
         Ok(())
     }
@@ -753,6 +967,8 @@ mod tests {
             max_parallel_sessions: 8,
             session_timeout_secs: 7200,
             monitor_interval_secs: 2,
+            max_retry_attempts: 3,
+            retry_delay_secs: 5,
         };
 
         let orchestrator = Orchestrator::new(config.clone());
@@ -1063,6 +1279,8 @@ mod tests {
             max_parallel_sessions: 4,
             session_timeout_secs: 1, // 1 second timeout for testing
             monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 5,
         };
         let orchestrator = Orchestrator::new(config);
 
@@ -1087,6 +1305,8 @@ mod tests {
             max_parallel_sessions: 4,
             session_timeout_secs: 3600,
             monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 5,
         };
         let orchestrator = Orchestrator::new(config);
 
@@ -1164,5 +1384,217 @@ mod tests {
             .await;
 
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_handle_session_completion() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+        orchestrator.start_session(&session_id).await.unwrap();
+
+        let result = orchestrator.handle_session_completion(&session_id).await;
+        assert!(result.is_ok());
+
+        let status = orchestrator.get_session_status(&session_id).await;
+        assert_eq!(status, Some(SessionStatus::Completed));
+
+        // Verify retry counts were cleaned up
+        let retry_counts = orchestrator.retry_counts.read().await;
+        assert!(!retry_counts.contains_key(&session_id));
+    }
+
+    #[tokio::test]
+    async fn test_handle_session_completion_nonexistent() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let result = orchestrator
+            .handle_session_completion(&"nonexistent".to_string())
+            .await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_should_retry_initial() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        let should_retry = orchestrator.should_retry(&session_id).await;
+        assert!(should_retry);
+    }
+
+    #[tokio::test]
+    async fn test_should_retry_max_attempts() {
+        let config = OrchestratorConfig {
+            max_parallel_sessions: 4,
+            session_timeout_secs: 3600,
+            monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 1,
+        };
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        // Set retry count to max
+        let mut retry_counts = orchestrator.retry_counts.write().await;
+        retry_counts.insert(session_id.clone(), 3);
+        drop(retry_counts);
+
+        let should_retry = orchestrator.should_retry(&session_id).await;
+        assert!(!should_retry);
+    }
+
+    #[tokio::test]
+    async fn test_retry_session() {
+        let config = OrchestratorConfig {
+            max_parallel_sessions: 4,
+            session_timeout_secs: 3600,
+            monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 1,
+        };
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        let result = orchestrator.retry_session(&session_id).await;
+        assert!(result.is_ok());
+
+        // Verify retry count was incremented
+        let retry_counts = orchestrator.retry_counts.read().await;
+        assert_eq!(retry_counts.get(&session_id), Some(&1));
+    }
+
+    #[tokio::test]
+    async fn test_rollback_session() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+        orchestrator.start_session(&session_id).await.unwrap();
+
+        // Set retry count
+        let mut retry_counts = orchestrator.retry_counts.write().await;
+        retry_counts.insert(session_id.clone(), 3);
+        drop(retry_counts);
+
+        let result = orchestrator.rollback_session(&session_id).await;
+        assert!(result.is_ok());
+
+        // Verify status is Failed
+        let status = orchestrator.get_session_status(&session_id).await;
+        assert_eq!(status, Some(SessionStatus::Failed));
+
+        // Verify cleanup
+        let retry_counts = orchestrator.retry_counts.read().await;
+        assert!(!retry_counts.contains_key(&session_id));
+
+        let start_times = orchestrator.session_start_times.read().await;
+        assert!(!start_times.contains_key(&session_id));
+    }
+
+    #[tokio::test]
+    async fn test_handle_session_failure_with_retry() {
+        let config = OrchestratorConfig {
+            max_parallel_sessions: 4,
+            session_timeout_secs: 3600,
+            monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 1,
+        };
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        let result = orchestrator
+            .handle_session_failure(&session_id, "Test failure")
+            .await;
+        assert!(result.is_ok());
+
+        // Verify retry count was incremented
+        let retry_counts = orchestrator.retry_counts.read().await;
+        assert_eq!(retry_counts.get(&session_id), Some(&1));
+    }
+
+    #[tokio::test]
+    async fn test_handle_session_failure_max_retries() {
+        let config = OrchestratorConfig {
+            max_parallel_sessions: 4,
+            session_timeout_secs: 3600,
+            monitor_interval_secs: 1,
+            max_retry_attempts: 2,
+            retry_delay_secs: 1,
+        };
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        // Set retry count to max
+        let mut retry_counts = orchestrator.retry_counts.write().await;
+        retry_counts.insert(session_id.clone(), 2);
+        drop(retry_counts);
+
+        let result = orchestrator
+            .handle_session_failure(&session_id, "Test failure")
+            .await;
+        assert!(result.is_ok());
+
+        // Verify session was rolled back
+        let status = orchestrator.get_session_status(&session_id).await;
+        assert_eq!(status, Some(SessionStatus::Failed));
+    }
+
+    #[tokio::test]
+    async fn test_remove_session_clears_retry_counts() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let session = Session::new(SpecId::new(), Phase::Tdd);
+        let session_id = orchestrator.add_session(session).await.unwrap();
+
+        // Set retry count
+        let mut retry_counts = orchestrator.retry_counts.write().await;
+        retry_counts.insert(session_id.clone(), 2);
+        drop(retry_counts);
+
+        // Remove session
+        orchestrator.remove_session(&session_id).await;
+
+        // Verify retry counts were cleared
+        let retry_counts = orchestrator.retry_counts.read().await;
+        assert!(!retry_counts.contains_key(&session_id));
     }
 }
