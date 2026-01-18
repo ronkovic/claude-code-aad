@@ -8,10 +8,12 @@
 
 pub mod config;
 pub mod dependency_graph;
+pub mod escalation;
 pub mod monitor;
 pub mod orchestrator;
 
 pub use config::OrchestratorConfig;
 pub use dependency_graph::DependencyGraph;
+pub use escalation::{Escalation, EscalationHandler, EscalationLevel};
 pub use monitor::{MonitorEvent, MonitorProgress, SessionStatus};
 pub use orchestrator::Orchestrator;
