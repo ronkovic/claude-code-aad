@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Configuration for the orchestrator.
 ///
 /// Controls various aspects of the orchestration process including
-/// parallelism, timeouts, and monitoring intervals.
+/// parallelism, timeouts, monitoring intervals, and retry behavior.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrchestratorConfig {
     /// Maximum number of sessions that can run in parallel.
@@ -24,6 +24,20 @@ pub struct OrchestratorConfig {
     /// How often the orchestrator checks session status.
     /// Default: 1 second.
     pub monitor_interval_secs: u64,
+
+    /// Maximum number of retry attempts for failed sessions.
+    ///
+    /// When a session fails, it will be retried up to this many times
+    /// before being marked as permanently failed.
+    /// Default: 3 attempts.
+    pub max_retry_attempts: usize,
+
+    /// Delay between retry attempts in seconds.
+    ///
+    /// After a session fails, the orchestrator will wait this long
+    /// before attempting to retry it.
+    /// Default: 5 seconds.
+    pub retry_delay_secs: u64,
 }
 
 impl Default for OrchestratorConfig {
@@ -32,6 +46,8 @@ impl Default for OrchestratorConfig {
             max_parallel_sessions: num_cpus(),
             session_timeout_secs: 3600,
             monitor_interval_secs: 1,
+            max_retry_attempts: 3,
+            retry_delay_secs: 5,
         }
     }
 }
@@ -54,6 +70,8 @@ mod tests {
         assert!(config.max_parallel_sessions > 0);
         assert_eq!(config.session_timeout_secs, 3600);
         assert_eq!(config.monitor_interval_secs, 1);
+        assert_eq!(config.max_retry_attempts, 3);
+        assert_eq!(config.retry_delay_secs, 5);
     }
 
     #[test]
@@ -71,6 +89,8 @@ mod tests {
         assert_eq!(config.max_parallel_sessions, cloned.max_parallel_sessions);
         assert_eq!(config.session_timeout_secs, cloned.session_timeout_secs);
         assert_eq!(config.monitor_interval_secs, cloned.monitor_interval_secs);
+        assert_eq!(config.max_retry_attempts, cloned.max_retry_attempts);
+        assert_eq!(config.retry_delay_secs, cloned.retry_delay_secs);
     }
 
     #[test]
@@ -79,6 +99,8 @@ mod tests {
             max_parallel_sessions: 8,
             session_timeout_secs: 7200,
             monitor_interval_secs: 2,
+            max_retry_attempts: 5,
+            retry_delay_secs: 10,
         };
 
         let json = serde_json::to_string(&config).unwrap();
@@ -96,5 +118,10 @@ mod tests {
             config.monitor_interval_secs,
             deserialized.monitor_interval_secs
         );
+        assert_eq!(
+            config.max_retry_attempts,
+            deserialized.max_retry_attempts
+        );
+        assert_eq!(config.retry_delay_secs, deserialized.retry_delay_secs);
     }
 }

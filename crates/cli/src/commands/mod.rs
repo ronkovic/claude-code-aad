@@ -1,4 +1,5 @@
 pub mod init;
+pub mod orchestrate;
 pub mod spec;
 pub mod style;
 pub mod tasks;
@@ -37,6 +38,13 @@ pub enum Commands {
     Worktree {
         /// 仕様ID
         spec_id: String,
+    },
+
+    /// 複数の仕様を並列実行
+    Orchestrate {
+        /// 実行する仕様ID（複数指定可能）
+        #[arg(long, value_delimiter = ' ', num_args = 1..)]
+        specs: Vec<String>,
     },
 }
 
