@@ -5,6 +5,7 @@
 
 pub mod config;
 pub mod error;
+pub mod persistence;
 
 // Re-export commonly used types
 pub use error::{InfrastructureError, Result};

@@ -181,7 +181,14 @@ SPEC-003の振り返り実行が完了しました：
 
 ## 🚧 進行中のタスク
 
-なし（SPEC-004-T01が完了し、PR #28をレビュー待ち）
+### SPEC-005: タスク分割完了 ✅
+- **フェーズ**: Phase 5（セッション管理 + 永続化）
+- **完了日時**: 2026-01-18 19:50
+- **実装内容**:
+  - タスクドキュメント作成（T01〜T07）
+  - GitHub Issues作成（#41〜#47）
+  - tasks-summary.md作成
+- **次のアクション**: T01（persistence/モジュール基盤実装）の開始
 
 ### 最近完了したタスク
 
@@ -204,19 +211,23 @@ SPEC-003の振り返り実行が完了しました：
 
 ### 即座に実行可能なアクション
 
-1. **PR #28のレビューとマージ**
-   - Draft PR #28（SPEC-004-T01）をレビュー
-   - 問題なければマージしてIssue #21をクローズ
-   - マージ後にworktreeを削除
+1. **SPEC-005-T01の開始**（推奨）
+   - persistence/モジュール基盤実装を開始
+   - Issue #41に対応
+   - 実装内容:
+     - `infrastructure/src/persistence/` ディレクトリ作成
+     - `FileStore` トレイト定義
+     - 共通エラー型定義
+     - `serde_json` クレート追加
 
-2. **SPEC-004-T02の開始**（T01マージ後）
-   - `/aad:worktree SPEC-004-T02` で新しいworktreeを作成
-   - DependencyGraph実装を開始
+2. **SPEC-004の継続**（代替案）
+   - PR #28のレビューとマージ
+   - SPEC-004-T02（DependencyGraph実装）の開始
    - Issue #22に対応
 
-3. **SPEC-004-T01の振り返り**（オプション）
-   - `/aad:retro SPEC-004-T01` で学びを記録
-   - 問題点や改善点をドキュメント化
+3. **振り返り実行**（オプション）
+   - SPEC-005のタスク分割プロセスの振り返り
+   - 改善点をドキュメント化
 
 ### Phase 4: オーケストレーション（進行中）
 
@@ -250,6 +261,38 @@ SPEC-004「オーケストレーション」のタスク分割が完了し、T01
 
 #### タスクファイル
 詳細は `.aad/tasks/SPEC-004/` を参照してください。
+
+---
+
+### Phase 5: セッション管理 + 永続化（タスク分割完了）
+
+SPEC-005「セッション管理 + 永続化」のタスク分割が完了しました。
+
+#### SPEC-005 タスク一覧
+
+| タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
+|---------|---------|--------|------|-----------|-------|
+| SPEC-005-T01 | persistence/モジュール基盤実装 | S | なし | 🟡 未着手 | [#41](https://github.com/ronkovic/claude-code-aad/issues/41) |
+| SPEC-005-T02 | SpecJsonRepo実装 | M | T01 | 🟡 未着手 | [#42](https://github.com/ronkovic/claude-code-aad/issues/42) |
+| SPEC-005-T03 | TaskJsonRepo・SessionJsonRepo実装 | M | T01, T02 | 🟡 未着手 | [#43](https://github.com/ronkovic/claude-code-aad/issues/43) |
+| SPEC-005-T04 | StyleFileAdapter実装 | M | T01 | 🟡 未着手 | [#44](https://github.com/ronkovic/claude-code-aad/issues/44) |
+| SPEC-005-T05 | TokenReplacer実装 | S | T01 | 🟡 未着手 | [#45](https://github.com/ronkovic/claude-code-aad/issues/45) |
+| SPEC-005-T06 | BackupAdapter実装 | M | T01 | 🟡 未着手 | [#46](https://github.com/ronkovic/claude-code-aad/issues/46) |
+| SPEC-005-T07 | persistコマンド実装 | M | T02, T03, T06 | 🟡 未着手 | [#47](https://github.com/ronkovic/claude-code-aad/issues/47) |
+
+#### 並列実行可能グループ（SPEC-005）
+- **Wave 1**: T01（単独）
+- **Wave 2**: T02, T04, T05, T06（全てT01依存、並列実行可能）
+- **Wave 3**: T03（T01, T02依存）
+- **Wave 4**: T07（T02, T03, T06依存）
+
+#### 推定総時間
+- **Must Have**: 20-32時間（約3-4日）
+- **Should Have**: 4-6時間
+- **合計**: 24-38時間（約3-5日）
+
+#### タスクファイル
+詳細は `.aad/tasks/SPEC-005/` を参照してください。
 
 ---
 
@@ -389,5 +432,5 @@ Phase 1（Domain基盤）は完了済みです。次は Phase 2: Application層 
 
 ---
 
-**最終更新**: 2026-01-18 12:00 UTC
-**次回更新推奨**: Phase 3 開始時
+**最終更新**: 2026-01-18 19:50 JST
+**次回更新推奨**: SPEC-005-T01 完了時

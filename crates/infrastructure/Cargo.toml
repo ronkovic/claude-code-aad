@@ -12,6 +12,12 @@ domain = { path = "../domain" }
 # Configuration
 toml = "0.8"
 
+# Persistence
+serde_json = "1.0"
+async-trait = "0.1"
+tokio = { workspace = true }
+chrono = { workspace = true }
+
 # Workspace dependencies
 serde = { workspace = true }
 thiserror = { workspace = true }
