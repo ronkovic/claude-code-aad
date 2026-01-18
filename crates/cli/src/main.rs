@@ -46,6 +46,7 @@ fn main() -> anyhow::Result<()> {
                 }
             })?;
         }
+        Commands::Monitor(args) => commands::monitor::execute(args)?,
     }
 
     Ok(())

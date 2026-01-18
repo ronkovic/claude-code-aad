@@ -4,7 +4,7 @@
 
 **担当者**: Claude Code
 
-**ステータス**: Draft
+**ステータス**: Approved
 
 **関連Issue**: N/A
 
