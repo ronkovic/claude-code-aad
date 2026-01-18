@@ -99,14 +99,14 @@ mod tests {
 
     #[test]
     fn test_new_creates_service() {
-        let service = IntegrationService::new();
+        let _service = IntegrationService::new();
         // Service is created successfully
         assert!(true);
     }
 
     #[test]
     fn test_default_trait() {
-        let service = IntegrationService::default();
+        let _service = IntegrationService::default();
         // Service is created successfully
         assert!(true);
     }
@@ -114,7 +114,7 @@ mod tests {
     #[test]
     fn test_with_adapter_creates_service_with_custom_adapter() {
         let adapter = GhCliAdapter::with_path("/custom/gh".to_string());
-        let service = IntegrationService::with_adapter(adapter);
+        let _service = IntegrationService::with_adapter(adapter);
         // Service is created successfully with custom adapter
         assert!(true);
     }

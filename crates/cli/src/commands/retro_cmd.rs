@@ -17,11 +17,21 @@ use std::path::Path;
 /// - The retrospective template cannot be created
 /// - CLAUDE.md cannot be updated (when no_append is false)
 pub fn execute(spec_id: &str, no_append: bool) -> anyhow::Result<()> {
+    execute_with_paths(spec_id, no_append, ".aad/retrospectives", "CLAUDE.md")
+}
+
+/// Executes the retro command with custom paths (for testing).
+fn execute_with_paths(
+    spec_id: &str,
+    no_append: bool,
+    retro_dir_path: &str,
+    claude_md_path: &str,
+) -> anyhow::Result<()> {
     // Generate retrospective template
     let retro_content = generate_template(spec_id)?;
 
-    // Save to .aad/retrospectives/
-    let retro_dir = Path::new(".aad/retrospectives");
+    // Save to retrospectives directory
+    let retro_dir = Path::new(retro_dir_path);
     if !retro_dir.exists() {
         fs::create_dir_all(retro_dir)?;
     }
@@ -35,7 +45,7 @@ pub fn execute(spec_id: &str, no_append: bool) -> anyhow::Result<()> {
 
     // Append to CLAUDE.md if not disabled
     if !no_append {
-        append_to_claude_md(spec_id, &retro_content)?;
+        append_to_claude_md_with_path(spec_id, &retro_content, claude_md_path)?;
         println!("✓ CLAUDE.md に学びを追記しました");
     }
 
@@ -183,9 +193,9 @@ fn generate_template(spec_id: &str) -> anyhow::Result<String> {
     Ok(template)
 }
 
-/// Appends retrospective learnings to CLAUDE.md.
-fn append_to_claude_md(spec_id: &str, _retro_content: &str) -> anyhow::Result<()> {
-    let claude_md_path = Path::new("CLAUDE.md");
+/// Appends retrospective learnings to CLAUDE.md with custom path (for testing).
+fn append_to_claude_md_with_path(spec_id: &str, _retro_content: &str, path: &str) -> anyhow::Result<()> {
+    let claude_md_path = Path::new(path);
 
     if !claude_md_path.exists() {
         anyhow::bail!("CLAUDE.md が見つかりません");
@@ -217,23 +227,25 @@ fn append_to_claude_md(spec_id: &str, _retro_content: &str) -> anyhow::Result<()
     let content = fs::read_to_string(claude_md_path)?;
 
     // Find the "学びの蓄積" section
-    if let Some(pos) = content.find("## 🧠 学びの蓄積") {
-        // Find the next section after "学びの蓄積"
-        let after_section = &content[pos..];
+    if let Some(section_start) = content.find("## 🧠 学びの蓄積") {
+        // Find the content after the section header
+        let after_header = &content[section_start..];
 
-        // Look for the next "##" that marks a new section
-        if let Some(next_section_pos) = after_section[20..].find("\n## ") {
-            // Insert before the next section
-            let insert_pos = pos + 20 + next_section_pos;
+        // Look for the next section (starts with "\n## ")
+        if let Some(relative_pos) = after_header.find("\n## ") {
+            // Calculate absolute position in the original content
+            let next_section_pos = section_start + relative_pos;
+
+            // Insert the learning entry before the next section
             let mut new_content = String::new();
-            new_content.push_str(&content[..insert_pos]);
+            new_content.push_str(&content[..next_section_pos]);
             new_content.push_str(&learning_entry);
             new_content.push('\n');
-            new_content.push_str(&content[insert_pos..]);
+            new_content.push_str(&content[next_section_pos..]);
 
             fs::write(claude_md_path, new_content)?;
         } else {
-            // No next section, append to the end
+            // No next section found, append to the end
             let mut new_content = content;
             new_content.push_str(&learning_entry);
             new_content.push('\n');
@@ -268,25 +280,24 @@ mod tests {
     #[test]
     fn test_execute_creates_retro_file() {
         let temp_dir = TempDir::new().unwrap();
-        let original_dir = std::env::current_dir().unwrap();
-
-        // Change to temp directory
-        std::env::set_current_dir(temp_dir.path()).unwrap();
+        let retro_dir_path = temp_dir.path().join(".aad/retrospectives");
+        let claude_md_path = temp_dir.path().join("CLAUDE.md");
 
         // Execute retro command with no_append=true to skip CLAUDE.md update
-        let result = execute("SPEC-001", true);
-
-        // Restore original directory
-        std::env::set_current_dir(original_dir).unwrap();
+        let result = execute_with_paths(
+            "SPEC-001",
+            true,
+            retro_dir_path.to_str().unwrap(),
+            claude_md_path.to_str().unwrap(),
+        );
 
         assert!(result.is_ok());
 
         // Check that retrospective file was created
-        let retro_dir = temp_dir.path().join(".aad/retrospectives");
-        assert!(retro_dir.exists());
+        assert!(retro_dir_path.exists());
 
         // Find the created file
-        let entries: Vec<_> = fs::read_dir(&retro_dir)
+        let entries: Vec<_> = fs::read_dir(&retro_dir_path)
             .unwrap()
             .filter_map(|e| e.ok())
             .collect();
@@ -336,15 +347,12 @@ mod tests {
 
         fs::write(&claude_md_path, initial_content).unwrap();
 
-        // Change to temp directory
-        let original_dir = std::env::current_dir().unwrap();
-        std::env::set_current_dir(temp_dir.path()).unwrap();
-
         // Append learning
-        let result = append_to_claude_md("SPEC-999", "dummy content");
-
-        // Restore original directory
-        std::env::set_current_dir(original_dir).unwrap();
+        let result = append_to_claude_md_with_path(
+            "SPEC-999",
+            "dummy content",
+            claude_md_path.to_str().unwrap(),
+        );
 
         assert!(result.is_ok());
 
@@ -371,12 +379,13 @@ mod tests {
     #[test]
     fn test_append_to_claude_md_no_file() {
         let temp_dir = TempDir::new().unwrap();
-        let original_dir = std::env::current_dir().unwrap();
-        std::env::set_current_dir(temp_dir.path()).unwrap();
+        let claude_md_path = temp_dir.path().join("CLAUDE.md");
 
-        let result = append_to_claude_md("SPEC-001", "dummy");
-
-        std::env::set_current_dir(original_dir).unwrap();
+        let result = append_to_claude_md_with_path(
+            "SPEC-001",
+            "dummy",
+            claude_md_path.to_str().unwrap(),
+        );
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("CLAUDE.md が見つかりません"));
@@ -390,12 +399,11 @@ mod tests {
         // Create CLAUDE.md without the required section
         fs::write(&claude_md_path, "# プロジェクト指示書\n\n内容\n").unwrap();
 
-        let original_dir = std::env::current_dir().unwrap();
-        std::env::set_current_dir(temp_dir.path()).unwrap();
-
-        let result = append_to_claude_md("SPEC-001", "dummy");
-
-        std::env::set_current_dir(original_dir).unwrap();
+        let result = append_to_claude_md_with_path(
+            "SPEC-001",
+            "dummy",
+            claude_md_path.to_str().unwrap(),
+        );
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("学びの蓄積"));
