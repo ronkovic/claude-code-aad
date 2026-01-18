@@ -42,9 +42,24 @@ pub async fn save() -> anyhow::Result<()> {
             .await?;
     }
 
-    // Verify data was saved
+    println!("💾 セッション状態を保存中...");
+
+    // Load existing data
     let specs: Vec<Spec> = spec_repo.find_all().await?;
     let active_sessions: Vec<Session> = session_repo.find_active().await?;
+
+    // Save all specs to ensure persistence
+    for spec in &specs {
+        spec_repo.save(spec).await?;
+    }
+
+    // Save all active sessions
+    for session in &active_sessions {
+        session_repo.save(session).await?;
+    }
+
+    // TODO: Load and save tasks from .aad/tasks/ directory
+    // Currently, tasks are not being persisted as there's no source to load from
 
     println!("✓ セッション状態を保存しました (.aad/data/)");
     println!("  • 仕様: {} 件", specs.len());

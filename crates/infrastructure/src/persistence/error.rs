@@ -44,3 +44,14 @@ pub enum PersistenceError {
 
 /// Result type for persistence operations.
 pub type Result<T> = std::result::Result<T, PersistenceError>;
+
+/// Converts PersistenceError to DomainError for cross-layer error propagation.
+///
+/// This implementation preserves error context by using Debug formatting,
+/// which includes the full error chain and variant information.
+impl From<PersistenceError> for domain::DomainError {
+    fn from(err: PersistenceError) -> Self {
+        // Use Debug formatting to preserve error details and context
+        domain::DomainError::RepositoryError(format!("{:?}", err))
+    }
+}

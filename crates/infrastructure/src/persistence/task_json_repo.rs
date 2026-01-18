@@ -61,7 +61,7 @@ impl TaskJsonRepo {
 impl TaskRepository for TaskJsonRepo {
     async fn find_by_id(&self, id: &TaskId) -> DomainResult<Option<Task>> {
         self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(id);
 
@@ -71,10 +71,10 @@ impl TaskRepository for TaskJsonRepo {
 
         let content = fs::read_to_string(&file_path)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let task: Task = serde_json::from_str(&content)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         Ok(Some(task))
     }
@@ -87,21 +87,21 @@ impl TaskRepository for TaskJsonRepo {
         let mut tasks = Vec::new();
         let mut entries = fs::read_dir(&self.base_dir)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         while let Some(entry) = entries
             .next_entry()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?
         {
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
                 let content = fs::read_to_string(&path)
                     .await
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 let task: Task = serde_json::from_str(&content)
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 if &task.spec_id == spec_id {
                     tasks.push(task);
@@ -114,33 +114,33 @@ impl TaskRepository for TaskJsonRepo {
 
     async fn save(&self, task: &Task) -> DomainResult<()> {
         self.validate_id(&task.id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         self.ensure_dir_exists()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(&task.id);
         let content = serde_json::to_string_pretty(task)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         fs::write(&file_path, content)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         Ok(())
     }
 
     async fn delete(&self, id: &TaskId) -> DomainResult<()> {
         self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(id);
 
         if file_path.exists() {
             fs::remove_file(&file_path)
                 .await
-                .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
         }
 
         Ok(())

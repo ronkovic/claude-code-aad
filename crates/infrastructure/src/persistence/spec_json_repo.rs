@@ -60,23 +60,24 @@ impl SpecJsonRepo {
 #[async_trait]
 impl SpecRepository for SpecJsonRepo {
     async fn find_by_id(&self, id: &SpecId) -> DomainResult<Option<Spec>> {
-        self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+        // Use PersistenceError internally, convert to DomainError at the end
+        let result: Result<Option<Spec>> = async {
+            self.validate_id(id)?;
 
-        let file_path = self.get_file_path(id);
+            let file_path = self.get_file_path(id);
 
-        if !file_path.exists() {
-            return Ok(None);
+            if !file_path.exists() {
+                return Ok(None);
+            }
+
+            let content = fs::read_to_string(&file_path).await?;
+            let spec: Spec = serde_json::from_str(&content)?;
+
+            Ok(Some(spec))
         }
+        .await;
 
-        let content = fs::read_to_string(&file_path)
-            .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
-
-        let spec: Spec = serde_json::from_str(&content)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
-
-        Ok(Some(spec))
+        result.map_err(Into::into)
     }
 
     async fn find_all(&self) -> DomainResult<Vec<Spec>> {
@@ -87,21 +88,21 @@ impl SpecRepository for SpecJsonRepo {
         let mut specs = Vec::new();
         let mut entries = fs::read_dir(&self.base_dir)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         while let Some(entry) = entries
             .next_entry()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?
         {
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
                 let content = fs::read_to_string(&path)
                     .await
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 let spec: Spec = serde_json::from_str(&content)
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 specs.push(spec);
             }
@@ -112,33 +113,33 @@ impl SpecRepository for SpecJsonRepo {
 
     async fn save(&self, spec: &Spec) -> DomainResult<()> {
         self.validate_id(&spec.id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         self.ensure_dir_exists()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(&spec.id);
         let content = serde_json::to_string_pretty(spec)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         fs::write(&file_path, content)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         Ok(())
     }
 
     async fn delete(&self, id: &SpecId) -> DomainResult<()> {
         self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(id);
 
         if file_path.exists() {
             fs::remove_file(&file_path)
                 .await
-                .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
         }
 
         Ok(())

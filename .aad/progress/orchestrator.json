@@ -1,37 +1,28 @@
 {
-  "version": "1.0",
-  "startedAt": "2026-01-18T11:50:00Z",
-  "specs": [
-    {
-      "specId": "SPEC-001",
-      "status": "completed",
-      "taskId": "a906a97",
-      "startedAt": "2026-01-18T11:50:00Z",
-      "completedAt": "2026-01-18T03:09:56Z",
-      "totalTasks": 9,
-      "completedTasks": 9,
-      "escalations": []
-    },
-    {
-      "specId": "SPEC-002",
-      "status": "completed",
-      "taskId": "a5a9da4",
-      "startedAt": "2026-01-18T03:22:05Z",
-      "completedAt": "2026-01-18T12:00:00Z",
-      "totalTasks": 7,
-      "completedTasks": 7,
-      "escalations": []
-    },
-    {
-      "specId": "SPEC-003",
-      "status": "completed",
-      "taskId": "a09185c",
-      "startedAt": "2026-01-18T12:10:00Z",
-      "completedAt": "2026-01-18T13:15:00Z",
-      "totalTasks": 9,
-      "completedTasks": 9,
-      "escalations": []
+  "specs": ["SPEC-005"],
+  "status": "in_progress",
+  "startedAt": "2026-01-18T20:00:00+09:00",
+  "retriedAt": "2026-01-18T20:10:00+09:00",
+  "retryWithPermissionsAt": "2026-01-18T20:20:00+09:00",
+  "executionMode": "child_agent",
+  "children": {
+    "SPEC-005": {
+      "agentId": "a49f9dc",
+      "status": "running",
+      "previousAttempts": [
+        {
+          "agentId": "abd8bf5",
+          "status": "failed",
+          "reason": "プランモード待機で終了"
+        },
+        {
+          "agentId": "ae4dbb3",
+          "status": "failed",
+          "reason": "Bash権限拒否"
+        }
+      ]
     }
-  ],
-  "status": "completed"
+  },
+  "completedSpecs": [],
+  "baseBranch": "docs/add-implementation-phases"
 }

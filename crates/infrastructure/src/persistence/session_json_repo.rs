@@ -55,7 +55,7 @@ impl SessionJsonRepo {
 impl SessionRepository for SessionJsonRepo {
     async fn find_by_id(&self, id: &str) -> DomainResult<Option<Session>> {
         self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(id);
 
@@ -65,10 +65,10 @@ impl SessionRepository for SessionJsonRepo {
 
         let content = fs::read_to_string(&file_path)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let session: Session = serde_json::from_str(&content)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         Ok(Some(session))
     }
@@ -81,21 +81,21 @@ impl SessionRepository for SessionJsonRepo {
         let mut sessions = Vec::new();
         let mut entries = fs::read_dir(&self.base_dir)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         while let Some(entry) = entries
             .next_entry()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?
         {
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
                 let content = fs::read_to_string(&path)
                     .await
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 let session: Session = serde_json::from_str(&content)
-                    .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                    .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
                 if session.is_active() {
                     sessions.push(session);
@@ -108,33 +108,33 @@ impl SessionRepository for SessionJsonRepo {
 
     async fn save(&self, session: &Session) -> DomainResult<()> {
         self.validate_id(&session.id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         self.ensure_dir_exists()
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(&session.id);
         let content = serde_json::to_string_pretty(session)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         fs::write(&file_path, content)
             .await
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         Ok(())
     }
 
     async fn delete(&self, id: &str) -> DomainResult<()> {
         self.validate_id(id)
-            .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+            .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
 
         let file_path = self.get_file_path(id);
 
         if file_path.exists() {
             fs::remove_file(&file_path)
                 .await
-                .map_err(|e| domain::DomainError::RepositoryError(e.to_string()))?;
+                .map_err(|e| domain::DomainError::RepositoryError(format!("{:?}", e)))?;
         }
 
         Ok(())
