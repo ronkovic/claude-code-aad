@@ -4,7 +4,7 @@
 
 **作成日時**: 2026-01-18
 
-**現在のフェーズ**: 設計完了 → 実装待ち
+**現在のフェーズ**: Phase 3 完了 → Phase 4 準備中
 
 ---
 
@@ -16,7 +16,7 @@ claude-code-aad を Rust + Ratatui で完全新設計し、以下の外部ツー
 - **ralph-tui**: AIエージェントのタスクループ自動化
 
 ### 現在のマイルストーン
-アーキテクチャ設計完了。Rustプロジェクトの初期構築に移行予定。
+Phase 1（Domain基盤）とPhase 2（Application + Infrastructure基盤）が完了。CLI層の実装に移行予定。
 
 ---
 
@@ -78,6 +78,63 @@ Phase 1-8 の詳細な実装計画を `docs/IMPLEMENTATION-PHASES.md` として�
 - 検証方法とリスク管理を記載
 - HANDOFF.md の次のステップを Phase 1 の詳細に更新
 
+### Phase 1 実装完了（2026-01-18）
+SPEC-001「プロジェクト構造 + Domain基盤」の実装を完了：
+- **実装期間**: 約3時間20分（全9タスク）
+- **実装内容**:
+  - Rust ワークスペース初期化（Cargo.toml）
+  - Domain クレート実装（22ファイル、約2300行）
+  - Value Objects 定義（SpecId, TaskId, Phase, Status, Priority, StyleName, TokenMap）
+  - Entities 定義（Spec, Task, Session, Workflow, Style）
+  - Repository トレイト定義（SpecRepository, TaskRepository, SessionRepository）
+- **品質メトリクス**:
+  - テスト: 92ユニット + 2ドキュメント（全成功）
+  - Clippy: 警告ゼロ（-D warnings モード）
+  - Rustfmt: フォーマット問題なし
+  - カバレッジ: レポート生成成功
+  - ドキュメント: Rustdoc 生成成功
+- **詳細**: `.aad/progress/SPEC-001/COMPLETION_SUMMARY.md` 参照
+
+### Phase 2 実装完了（2026-01-18）
+SPEC-002「設定管理 + ワークフロー」の実装を完了：
+- **実装期間**: 約8時間38分（全7タスク）
+- **実装体制**: 子Agent（T01-T06） + 親Agent（T07）
+- **実装内容**:
+  - Application クレート実装（ワークフロー状態遷移ロジック）
+  - Infrastructure クレート実装（設定管理、バリデーション）
+  - AadConfig 構造体（TOML設定ファイル管理）
+  - StyleConfig 構造体（スタイル設定管理）
+  - ワークフロー遷移ロジック（SPEC → TASKS → TDD → REVIEW → RETRO → MERGE）
+  - 日本語バリデーションメッセージ
+- **品質メトリクス**:
+  - テスト: 140件全パス（Application 11 + Infrastructure 32 + Domain 92 + Doc 5）
+  - Clippy: 警告ゼロ（1件検出→修正完了）
+  - Rustfmt: フォーマット問題なし（4箇所修正）
+  - ドキュメント: Rustdoc 生成成功
+- **詳細**: `.aad/progress/SPEC-002/COMPLETION_SUMMARY.md` 参照
+
+### Phase 3 実装完了（2026-01-18）
+SPEC-003「CLI基本コマンド」の実装を完了：
+- **実装期間**: 約1時間5分（全9タスク）
+- **実装体制**: 子Agent（T01-T08） + 親Agent（T09品質チェック＋修正）
+- **実装内容**:
+  - CLI クレート実装（clap 4.5 + anyhow）
+  - DI コンテナ実装（App構造体、リポジトリ管理）
+  - 5つの基本コマンド実装（init, spec, tasks, style, worktree）
+  - テンプレート埋め込み（include_str! マクロ）
+  - GitHub Issues 自動作成機能
+- **品質メトリクス**:
+  - ビルド: 成功（expected dead_code警告のみ）
+  - テスト: 142件全パス（Application 11 + CLI 2 + Domain 92 + Infrastructure 32 + Doc 5）
+  - Clippy: 警告ゼロ（7件検出→修正完了）
+  - Rustfmt: フォーマット問題なし（3箇所自動修正）
+- **親Agentによる修正**:
+  - `token_map.apply()` → `token_map.replace_tokens()` に修正
+  - 未使用変数警告修正（`config` → `_config`）
+  - Clippy警告修正（needless_borrows_for_generic_args）
+  - dead_code属性追加（App構造体、SPEC-004で使用予定）
+- **詳細**: `.aad/progress/SPEC-003/spec-status.json` 参照
+
 ---
 
 ## ✅ うまくいったこと
@@ -109,52 +166,154 @@ Phase 1-8 の詳細な実装計画を `docs/IMPLEMENTATION-PHASES.md` として�
 - 理由: プランの詳細が固まっていなかった
 - 対策: ユーザーの要望を全て確認してからExitPlanModeを呼ぶ
 
+### SPEC-003 振り返り完了 ✅
+
+SPEC-003の振り返り実行が完了しました：
+- **振り返りログ**: `.aad/retrospectives/RETRO-SPEC-003-20260118.md`
+- **CLAUDE.md更新**: 学びの蓄積セクションに2件追記
+  - 子Agentへの既存API確認指示
+  - Clippy needless_borrows_for_generic_args警告
+- **Keep**: 親子Agent連携、品質チェック、GitHub Issues自動クローズ
+- **Problem**: TokenMapメソッド名誤り、Clippy警告の事前チェック不足
+- **Try**: 既存API確認指示の明示化、ビルド後のClippy即座実行
+
+---
+
+## 🚧 進行中のタスク
+
+なし（SPEC-004-T01が完了し、PR #28をレビュー待ち）
+
+### 最近完了したタスク
+
+#### SPEC-004-T01: Orchestrator構造体実装 ✅
+- **ステータス**: completed
+- **完了日時**: 2026-01-18 14:30
+- **PR**: [#28](https://github.com/ronkovic/claude-code-aad/pull/28)（Draft）
+- **ブランチ**: feature/SPEC-004-T01
+- **Issue**: [#21](https://github.com/ronkovic/claude-code-aad/issues/21)
+- **実装内容**:
+  - Orchestrator構造体（Arc<RwLock<HashMap<SessionId, Session>>>）
+  - OrchestratorConfig構造体
+  - tokio非同期ランタイム統合
+  - 25件のユニットテスト（全パス）
+- **AC達成**: 4/4件完了
+
 ---
 
 ## 🔄 次のステップ
 
-### Phase 1: プロジェクト構造 + Domain基盤（1週間）
+### 即座に実行可能なアクション
 
-詳細は `./docs/IMPLEMENTATION-PHASES.md` の Phase 1 を参照。
+1. **PR #28のレビューとマージ**
+   - Draft PR #28（SPEC-004-T01）をレビュー
+   - 問題なければマージしてIssue #21をクローズ
+   - マージ後にworktreeを削除
 
-#### 1. Rustワークスペースの初期化
-   - ルート `Cargo.toml` でワークスペース定義
-   - `cargo new --lib crates/domain`
-   - `cargo new --lib crates/application`
-   - `cargo new --lib crates/infrastructure`
-   - `cargo new crates/cli`
-   - `cargo new --lib crates/tui`
+2. **SPEC-004-T02の開始**（T01マージ後）
+   - `/aad:worktree SPEC-004-T02` で新しいworktreeを作成
+   - DependencyGraph実装を開始
+   - Issue #22に対応
 
-#### 2. domain クレートの実装
-   - **Entities 実装**:
-     - `Spec`: 仕様エンティティ
-     - `Task`: タスクエンティティ
-     - `Session`: セッションエンティティ
-     - `Workflow`: ワークフローエンティティ
-     - `Style`: スタイルエンティティ
+3. **SPEC-004-T01の振り返り**（オプション）
+   - `/aad:retro SPEC-004-T01` で学びを記録
+   - 問題点や改善点をドキュメント化
 
-   - **Value Objects 実装**:
-     - `SpecId`, `TaskId`: ID型
-     - `Phase`: フェーズ列挙型（SPEC, TASKS, TDD, REVIEW, RETRO, MERGE）
-     - `Status`: ステータス列挙型（pending, in_progress, done, failed）
-     - `Priority`: 優先度列挙型（Must, Should, Could, Won't）
-     - `StyleName`: スタイル名
-     - `TokenMap`: トークンマッピング
+### Phase 4: オーケストレーション（進行中）
 
-   - **Repository トレイト定義**:
-     - `SpecRepository`
-     - `TaskRepository`
-     - `SessionRepository`
+SPEC-004「オーケストレーション」のタスク分割が完了し、T01の実装も完了しました。
 
-   - **単体テスト作成**:
-     - エンティティの振る舞いテスト
-     - バリューオブジェクトのバリデーションテスト
+#### SPEC-004 タスク一覧
 
-#### 完了条件
-- ✅ `cargo build` が成功
-- ✅ `cargo test` が全て pass
-- ✅ ドメインモデルが定義済み
-- ✅ リポジトリトレイトが定義済み
+| タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
+|---------|---------|--------|------|-----------|-------|
+| SPEC-004-T01 | Orchestrator構造体実装 | M | なし | ✅ 完了 | [#21](https://github.com/ronkovic/claude-code-aad/issues/21) / [PR#28](https://github.com/ronkovic/claude-code-aad/pull/28) |
+| SPEC-004-T02 | DependencyGraph実装 | M | T01 | 🟡 未着手 | [#22](https://github.com/ronkovic/claude-code-aad/issues/22) |
+| SPEC-004-T03 | セッション登録・起動ロジック実装 | M | T01, T02 | 🟡 未着手 | [#23](https://github.com/ronkovic/claude-code-aad/issues/23) |
+| SPEC-004-T04 | モニターループ実装 | M | T01, T03 | 🟡 未着手 | [#24](https://github.com/ronkovic/claude-code-aad/issues/24) |
+| SPEC-004-T05 | エスカレーション処理実装 | M | T01, T04 | 🟡 未着手 | [#25](https://github.com/ronkovic/claude-code-aad/issues/25) |
+| SPEC-004-T06 | orchestrateコマンド実装 | M | T01, T03, T04, T05 | 🟡 未着手 | [#26](https://github.com/ronkovic/claude-code-aad/issues/26) |
+| SPEC-004-T07 | --resume, --dry-runオプション実装 | S | T06 | 🟡 未着手 | [#27](https://github.com/ronkovic/claude-code-aad/issues/27) |
+
+#### 並列実行可能グループ（SPEC-004）
+- **Wave 1**: T01（単独）
+- **Wave 2**: T02（T01依存）
+- **Wave 3**: T03（T01, T02依存）
+- **Wave 4**: T04（T01, T03依存）
+- **Wave 5**: T05（T01, T04依存）
+- **Wave 6**: T06（T01, T03, T04, T05依存）
+- **Wave 7**: T07（T06依存）
+
+#### 推定総時間
+- **Must Have**: 27-39時間
+- **Should Have**: 3-4時間
+- **合計**: 30-43時間（約4-5日）
+
+#### タスクファイル
+詳細は `.aad/tasks/SPEC-004/` を参照してください。
+
+---
+
+### Phase 2: Application層 + CLI基盤（予定）
+
+詳細は `./docs/IMPLEMENTATION-PHASES.md` の Phase 2 を参照。
+
+#### SPEC-001 完了 ✅
+
+Phase 1「プロジェクト構造 + Domain基盤」は完了しました。詳細は `.aad/progress/SPEC-001/COMPLETION_SUMMARY.md` を参照。
+
+| タスクID | タイトル | 複雑度 | 依存 | ステータス |
+|---------|---------|--------|------|-----------|
+| SPEC-001-T01 | Rust ワークスペース初期化 | S | なし | ✅ 完了 |
+| SPEC-001-T02 | Value Objects - IDs定義 | S | T01 | ✅ 完了 |
+| SPEC-001-T03 | Value Objects - Enums定義 | S | T01 | ✅ 完了 |
+| SPEC-001-T04 | Value Objects - Style関連定義 | S | T01 | ✅ 完了 |
+| SPEC-001-T05 | Entities - Spec & Task定義 | M | T02,T03 | ✅ 完了 |
+| SPEC-001-T06 | Entities - Session & Workflow定義 | M | T02,T03 | ✅ 完了 |
+| SPEC-001-T07 | Entities - Style定義 | S | T04 | ✅ 完了 |
+| SPEC-001-T08 | Repository トレイト定義 | M | T05,T06,T07 | ✅ 完了 |
+| SPEC-001-T09 | 品質チェック（Lint/Format/Coverage） | S | T08 | ✅ 完了 |
+
+#### SPEC-002 完了 ✅
+
+Phase 2 の一部「設定管理 + ワークフロー」は完了しました。詳細は `.aad/progress/SPEC-002/COMPLETION_SUMMARY.md` を参照。
+
+| タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
+|---------|---------|--------|------|-----------|-------|
+| SPEC-002-T01 | Application クレート初期化 | S | SPEC-001 | ✅ 完了 | [#5](https://github.com/ronkovic/claude-code-aad/issues/5) ✓ |
+| SPEC-002-T02 | Infrastructure クレート初期化 | S | SPEC-001 | ✅ 完了 | [#6](https://github.com/ronkovic/claude-code-aad/issues/6) ✓ |
+| SPEC-002-T03 | AadConfig 構造体実装 | M | T02 | ✅ 完了 | [#7](https://github.com/ronkovic/claude-code-aad/issues/7) ✓ |
+| SPEC-002-T04 | StyleConfig 構造体実装 | M | T02 | ✅ 完了 | [#8](https://github.com/ronkovic/claude-code-aad/issues/8) ✓ |
+| SPEC-002-T05 | ワークフロー状態遷移ロジック | S | T01 | ✅ 完了 | [#9](https://github.com/ronkovic/claude-code-aad/issues/9) ✓ |
+| SPEC-002-T06 | バリデーション実装 | M | T03,T04 | ✅ 完了 | [#10](https://github.com/ronkovic/claude-code-aad/issues/10) ✓ |
+| SPEC-002-T07 | 品質チェック | S | T01-T06 | ✅ 完了 | [#11](https://github.com/ronkovic/claude-code-aad/issues/11) ✓ |
+
+#### SPEC-003 完了 ✅
+
+Phase 3「CLI基本コマンド」は完了しました。詳細は `.aad/progress/SPEC-003/spec-status.json` を参照。
+
+| タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
+|---------|---------|--------|------|-----------|-------|
+| SPEC-003-T01 | CLI クレート初期化 | S | SPEC-001, SPEC-002 | ✅ 完了 | [#12](https://github.com/ronkovic/claude-code-aad/issues/12) ✓ |
+| SPEC-003-T02 | clap コマンド構造定義 | S | T01 | ✅ 完了 | [#13](https://github.com/ronkovic/claude-code-aad/issues/13) ✓ |
+| SPEC-003-T03 | DI コンテナ実装 | M | T01 | ✅ 完了 | [#14](https://github.com/ronkovic/claude-code-aad/issues/14) ✓ |
+| SPEC-003-T04 | init コマンド実装 | M | T02, T03 | ✅ 完了 | [#15](https://github.com/ronkovic/claude-code-aad/issues/15) ✓ |
+| SPEC-003-T05 | spec コマンド実装 | S | T02, T03 | ✅ 完了 | [#16](https://github.com/ronkovic/claude-code-aad/issues/16) ✓ |
+| SPEC-003-T06 | tasks コマンド実装 | M | T02, T03 | ✅ 完了 | [#17](https://github.com/ronkovic/claude-code-aad/issues/17) ✓ |
+| SPEC-003-T07 | style コマンド実装 | M | T02, T03 | ✅ 完了 | [#18](https://github.com/ronkovic/claude-code-aad/issues/18) ✓ |
+| SPEC-003-T08 | worktree コマンド実装 | M | T02, T03 | ✅ 完了 | [#19](https://github.com/ronkovic/claude-code-aad/issues/19) ✓ |
+| SPEC-003-T09 | 品質チェック | S | T01-T08 | ✅ 完了 | [#20](https://github.com/ronkovic/claude-code-aad/issues/20) ✓ |
+
+#### 並列実行可能グループ（SPEC-003）
+- **Wave 1**: T01（単独）
+- **Wave 2**: T02, T03（T02とT03は並列可能、両方T01依存）
+- **Wave 3**: T04, T05, T06, T07, T08（全て並列可能、T02 and T03依存）
+- **Wave 4**: T09（全タスク完了後）
+
+#### 並列実行可能グループ（SPEC-002）
+- **Wave 1**: T01, T02（並列可能）
+- **Wave 2**: T03, T04, T05（T03とT04は並列可能、T05はT01依存）
+- **Wave 3**: T06（T03, T04完了後）
+- **Wave 4**: T07（全タスク完了後）
 
 ---
 
@@ -215,19 +374,20 @@ Phase 1-8 の詳細な実装計画を `docs/IMPLEMENTATION-PHASES.md` として�
 HANDOFF.md と以下のドキュメントを読んで現在の状況を把握してください：
 - ./docs/ARCHITECTURE.md（アーキテクチャ設計）
 - ./docs/IMPLEMENTATION-PHASES.md（Phase 1-8 の実装計画）
+- .aad/progress/SPEC-001/COMPLETION_SUMMARY.md（Phase 1 実装完了サマリー）
 
-Phase 1: プロジェクト構造 + Domain基盤 の実装を開始してください：
-1. Cargo.toml でワークスペースを定義
-2. 各クレート（domain, application, infrastructure, cli, tui）を作成
-3. domain クレートのエンティティを実装
+Phase 1（Domain基盤）は完了済みです。次は Phase 2: Application層 + CLI基盤 の実装を開始してください：
+1. application クレートの実装
+2. Use Cases の定義
+3. CLI基盤の構築
 
 開始前に以下を確認：
-1. rustup がインストールされているか
-2. cargo のバージョン
-3. Phase 1 の完了条件を確認
+1. Phase 1 の成果物を確認（`crates/domain/` を参照）
+2. Phase 2 の詳細計画を確認（`./docs/IMPLEMENTATION-PHASES.md`）
+3. Phase 2 のタスク分割を実施（SPEC-002 として作成）
 ```
 
 ---
 
-**最終更新**: 2026-01-18
-**次回更新推奨**: 実装開始後
+**最終更新**: 2026-01-18 12:00 UTC
+**次回更新推奨**: Phase 3 開始時

@@ -6,9 +6,11 @@
     {
       "taskId": "SPEC-004-T01",
       "name": "Orchestrator構造体実装",
-      "status": "pending",
+      "status": "completed",
       "complexity": "M",
-      "issueNumber": 21
+      "issueNumber": 21,
+      "completedAt": "2026-01-18T14:30:00Z",
+      "prNumber": 28
     },
     {
       "taskId": "SPEC-004-T02",
@@ -60,5 +62,6 @@
     }
   ],
   "totalTasks": 7,
-  "completedTasks": 0
+  "completedTasks": 1,
+  "lastUpdated": "2026-01-18T14:30:00Z"
 }
