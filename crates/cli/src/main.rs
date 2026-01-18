@@ -2,7 +2,7 @@ mod app;
 mod commands;
 
 use clap::Parser;
-use commands::{Commands, StyleAction};
+use commands::{Commands, PersistAction, StyleAction};
 
 #[derive(Parser)]
 #[command(name = "aad")]
@@ -32,6 +32,19 @@ fn main() -> anyhow::Result<()> {
             // Create tokio runtime for async orchestrate command
             let rt = tokio::runtime::Runtime::new()?;
             rt.block_on(commands::orchestrate::execute(&specs, resume, dry_run))?;
+        }
+        Commands::Persist { action } => {
+            // Create tokio runtime for async persist command
+            let rt = tokio::runtime::Runtime::new()?;
+            rt.block_on(async {
+                match action {
+                    PersistAction::Save => commands::persist::save().await,
+                    PersistAction::Restore { timestamp } => {
+                        commands::persist::restore(&timestamp).await
+                    }
+                    PersistAction::List => commands::persist::list().await,
+                }
+            })?;
         }
     }
 

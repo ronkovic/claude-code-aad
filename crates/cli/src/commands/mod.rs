@@ -1,5 +1,6 @@
 pub mod init;
 pub mod orchestrate;
+pub mod persist;
 pub mod spec;
 pub mod style;
 pub mod tasks;
@@ -54,6 +55,27 @@ pub enum Commands {
         #[arg(long)]
         dry_run: bool,
     },
+
+    /// セッション状態の永続化操作
+    Persist {
+        #[command(subcommand)]
+        action: PersistAction,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum PersistAction {
+    /// 全セッション状態を保存
+    Save,
+
+    /// 指定時刻の状態に復元
+    Restore {
+        /// タイムスタンプ（ISO 8601形式、例: 2026-01-18T10:30:00）
+        timestamp: String,
+    },
+
+    /// バックアップ一覧を表示
+    List,
 }
 
 #[derive(Subcommand)]
