@@ -1,0 +1,10 @@
+{
+  "patterns": [
+    "Task completed successfully",
+    "All tasks? (?:have been )?completed",
+    "Implementation (?:is )?complete",
+    "Done\\.",
+    "Finished\\.",
+    "Success(?:fully completed)?\\."
+  ]
+}

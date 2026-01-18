@@ -1,8 +1,11 @@
 //! TUIアプリケーション状態管理
 
 use anyhow::Result;
+use application::loop_engine::LoopEngine;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use domain::entities::LoopState;
 use ratatui::Frame;
+use std::path::PathBuf;
 
 use crate::views::View;
 
@@ -16,6 +19,8 @@ pub struct App {
     selected_index: usize,
     /// 終了フラグ
     should_quit: bool,
+    /// ループ状態（オプション）
+    loop_state: Option<LoopState>,
 }
 
 impl App {
@@ -26,12 +31,29 @@ impl App {
             previous_view: None,
             selected_index: 0,
             should_quit: false,
+            loop_state: None,
         }
     }
 
     /// 状態を更新
     pub fn update(&mut self) {
-        // 後のタスクで実装
+        // ループ状態をリロード
+        self.reload_loop_state();
+    }
+
+    /// ループ状態をファイルからリロード
+    fn reload_loop_state(&mut self) {
+        let state_file = PathBuf::from(".aad/loop-state.json");
+        if state_file.exists() {
+            if let Ok(engine) = LoopEngine::load(state_file) {
+                self.loop_state = Some(engine.state().clone());
+            }
+        }
+    }
+
+    /// ループ状態を取得
+    pub fn loop_state(&self) -> Option<&LoopState> {
+        self.loop_state.as_ref()
     }
 
     /// 画面を描画
@@ -53,19 +75,28 @@ impl App {
                 view.render(area, frame.buffer_mut());
             }
             View::Monitor => {
-                let view = MonitorView::new(
-                    "SPEC-006",
-                    vec![
-                        ("T01: TUIクレート作成", 1.0),
-                        ("T02: App構造体実装", 1.0),
-                        ("T03: Widgets実装", 1.0),
-                        ("T04: Views実装", 1.0),
-                        ("T05: イベント処理", 1.0),
-                        ("T06: monitor連携", 0.8),
-                        ("T07: 品質チェック", 0.0),
-                    ],
-                );
-                view.render(area, frame.buffer_mut());
+                // ループ状態があればLoopMonitorを使用、なければ従来のMonitorViewを使用
+                if let Some(loop_state) = &self.loop_state {
+                    use crate::widgets::LoopMonitor;
+                    // TODO: 実際のタスクステータスから統計を取得
+                    // 今はダミーデータを使用
+                    let monitor = LoopMonitor::new(loop_state, 5, 1, 0, 10);
+                    monitor.render(area, frame.buffer_mut());
+                } else {
+                    let view = MonitorView::new(
+                        "SPEC-006",
+                        vec![
+                            ("T01: TUIクレート作成", 1.0),
+                            ("T02: App構造体実装", 1.0),
+                            ("T03: Widgets実装", 1.0),
+                            ("T04: Views実装", 1.0),
+                            ("T05: イベント処理", 1.0),
+                            ("T06: monitor連携", 0.8),
+                            ("T07: 品質チェック", 0.0),
+                        ],
+                    );
+                    view.render(area, frame.buffer_mut());
+                }
             }
             View::Workflow => {
                 let view = WorkflowView::new(
@@ -168,6 +199,26 @@ impl App {
 impl Default for App {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod loop_state_tests {
+    use super::*;
+    
+
+    #[test]
+    fn test_loop_state_getter() {
+        let app = App::new();
+        assert!(app.loop_state().is_none());
+    }
+
+    #[test]
+    fn test_update_reloads_loop_state() {
+        let mut app = App::new();
+        app.update();
+        // ファイルが存在しない場合はNoneのまま
+        assert!(app.loop_state().is_none());
     }
 }
 

@@ -187,7 +187,7 @@ mod tests {
         let spec_id1 = SpecId::new();
         let spec_id2 = SpecId::new();
 
-        let mut session1 = Session::new(spec_id1, Phase::Tdd);
+        let session1 = Session::new(spec_id1, Phase::Tdd);
         let session2 = Session::new(spec_id2.clone(), Phase::Review);
         let mut session3 = Session::new(spec_id2, Phase::Merge);
 

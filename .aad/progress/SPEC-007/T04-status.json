@@ -1,0 +1,49 @@
+{
+  "task_id": "SPEC-007-T04",
+  "task_name": "loop コマンド実装",
+  "status": "completed",
+  "completed_at": "2026-01-18T00:00:00Z",
+  "acceptance_criteria": {
+    "AC-4.1": {
+      "description": "cli/src/commands/loop_cmd.rs が実装されている",
+      "status": "completed",
+      "file": "crates/cli/src/commands/loop_cmd.rs"
+    },
+    "AC-4.2": {
+      "description": "aad loop SPEC-001 でループが開始される",
+      "status": "completed",
+      "implementation": "execute_normal() function"
+    },
+    "AC-4.3": {
+      "description": "aad loop SPEC-001 --resume で中断したループを再開できる",
+      "status": "completed",
+      "implementation": "execute_resume() function"
+    },
+    "AC-4.4": {
+      "description": "Ctrl+Cで中断できる（状態は保存される）",
+      "status": "completed",
+      "implementation": "run_with_signal_handling() with tokio::signal::ctrl_c()"
+    },
+    "AC-4.5": {
+      "description": "ループ進捗がコンソールに表示される",
+      "status": "completed",
+      "implementation": "Console output in execute_normal() and execute_resume()"
+    }
+  },
+  "tests": {
+    "test_execute_invalid_spec_id": "passed",
+    "test_execute_resume_without_state": "passed",
+    "test_execute_normal_with_empty_tasks": "passed"
+  },
+  "changes": [
+    "crates/cli/src/commands/loop_cmd.rs (新規作成)",
+    "crates/cli/src/commands/mod.rs (loop_cmd モジュール追加、Loop サブコマンド追加)",
+    "crates/cli/src/main.rs (Loop コマンドハンドリング追加)"
+  ],
+  "notes": [
+    "TDD手法でテストを先に書いてから実装を行った",
+    "tokio::signal::ctrl_c()を使用してCtrl+Cハンドリングを実装",
+    "状態保存・復元機能はLoopEngine::load()とsave_state()を使用",
+    "タスク読み込み機能は今後のタスクで実装予定（TODOコメント）"
+  ]
+}

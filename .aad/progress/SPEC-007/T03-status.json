@@ -1,0 +1,27 @@
+{
+  "task_id": "SPEC-007-T03",
+  "status": "completed",
+  "completed_at": "2026-01-18T00:00:00Z",
+  "implementation_summary": "依存関係に基づくタスク進行ロジック実装",
+  "changes": [
+    "crates/domain/src/entities/loop_state.rs: retry_counts フィールド追加、increment_retry(), get_retry_count(), clear_retry() メソッド実装",
+    "crates/application/src/loop_engine/engine.rs: max_retries フィールド追加、next_task() メソッド実装（依存関係チェック、リトライ制限チェック）、mark_task_failed() メソッド実装、with_max_retries() コンストラクタ追加"
+  ],
+  "acceptance_criteria_met": {
+    "AC-3.1": "next_task() メソッドが実装されている",
+    "AC-3.2": "依存タスクが完了している場合のみ次タスクが開始される",
+    "AC-3.3": "依存タスクが未完了の場合はスキップされる（再エンキュー）",
+    "AC-3.4": "全タスク完了時にループが終了する（キューが空になる）",
+    "AC-3.5": "リトライ機能が実装されている（最大3回、設定可能）"
+  },
+  "tests_added": [
+    "test_next_task_no_dependencies",
+    "test_next_task_with_dependencies_completed",
+    "test_next_task_with_dependencies_not_completed",
+    "test_next_task_all_completed",
+    "test_next_task_retry_limit",
+    "test_loop_state_retry_count",
+    "test_loop_state_multiple_task_retries"
+  ],
+  "notes": "依存関係解決とリトライ機能の実装完了。次のタスクはrun_loop()メソッドの更新（T04）です。"
+}

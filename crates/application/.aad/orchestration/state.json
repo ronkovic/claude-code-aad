@@ -1,0 +1,14 @@
+{
+  "spec_ids": [
+    "SPEC-001"
+  ],
+  "spec_phases": {},
+  "dependencies": {},
+  "completed": [],
+  "failed": [],
+  "running": [],
+  "pending": [
+    "SPEC-001"
+  ],
+  "saved_at": "2026-01-18T15:27:56.901109+00:00"
+}

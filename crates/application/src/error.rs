@@ -24,6 +24,10 @@ pub enum ApplicationError {
     /// Cyclic dependency detected.
     #[error("Cyclic dependency detected: {0:?}")]
     CyclicDependency(Vec<String>),
+
+    /// Pattern loading error.
+    #[error("Pattern loading error: {0}")]
+    PatternLoadError(String),
 }
 
 /// Application layer result type.

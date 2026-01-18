@@ -1,4 +1,5 @@
 pub mod init;
+pub mod loop_cmd;
 pub mod monitor;
 pub mod orchestrate;
 pub mod persist;
@@ -65,6 +66,16 @@ pub enum Commands {
 
     /// TUIダッシュボードを起動
     Monitor(monitor::MonitorArgs),
+
+    /// タスクをループで実行
+    Loop {
+        /// 仕様ID（例: SPEC-001）
+        spec_id: String,
+
+        /// 中断したループを再開
+        #[arg(long)]
+        resume: bool,
+    },
 }
 
 #[derive(Subcommand)]

@@ -47,6 +47,11 @@ fn main() -> anyhow::Result<()> {
             })?;
         }
         Commands::Monitor(args) => commands::monitor::execute(args)?,
+        Commands::Loop { spec_id, resume } => {
+            // Create tokio runtime for async loop command
+            let rt = tokio::runtime::Runtime::new()?;
+            rt.block_on(commands::loop_cmd::execute(&spec_id, resume))?;
+        }
     }
 
     Ok(())

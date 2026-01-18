@@ -8,6 +8,9 @@ ratatui = "0.28"
 crossterm = "0.28"
 anyhow = "1.0"
 
+[dependencies.application]
+path = "../application"
+
 [dependencies.domain]
 path = "../domain"
 

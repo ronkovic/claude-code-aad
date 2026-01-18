@@ -1,0 +1,53 @@
+{
+  "task_id": "SPEC-007-T05",
+  "title": "TUI統合（ループ状態の可視化）",
+  "status": "completed",
+  "started_at": "2026-01-18T00:00:00Z",
+  "completed_at": "2026-01-18T00:30:00Z",
+  "implementation": {
+    "files_created": [
+      "crates/tui/src/widgets/loop_monitor.rs"
+    ],
+    "files_modified": [
+      "crates/tui/src/widgets/mod.rs",
+      "crates/tui/src/app.rs",
+      "crates/tui/Cargo.toml"
+    ],
+    "tests_added": 8,
+    "tests_passed": true
+  },
+  "acceptance_criteria": {
+    "AC-5.1": {
+      "description": "aad monitor でループ状態が確認できる",
+      "status": "completed",
+      "notes": "App.render()でMonitorビューにLoopMonitorウィジェットを統合"
+    },
+    "AC-5.2": {
+      "description": "現在実行中のタスクがハイライト表示される",
+      "status": "completed",
+      "notes": "LoopMonitorウィジェットでcurrent_taskをYellow + Boldで表示"
+    },
+    "AC-5.3": {
+      "description": "タスク進捗率が表示される",
+      "status": "completed",
+      "notes": "Gaugeウィジェットで全体進捗率を表示、progress()メソッドで計算"
+    },
+    "AC-5.4": {
+      "description": "完了・失敗・スキップが色分けされる（緑・赤・黄）",
+      "status": "completed",
+      "notes": "統計セクションで✅ Completed、❌ Failed、⏭️ Skippedを色分け表示"
+    },
+    "AC-5.5": {
+      "description": "リアルタイムで状態が更新される",
+      "status": "completed",
+      "notes": "App.update()で1秒ごとにloop_stateをリロード"
+    }
+  },
+  "notes": [
+    "LoopMonitorウィジェットを新規作成し、SPEC-006のWidgetパターンに従った",
+    "App構造体にloop_stateフィールドを追加し、update()でリアルタイム更新を実現",
+    "MonitorビューでLoopMonitorとMonitorViewを切り替え可能にした",
+    "テストは8ケース追加（構造体作成、進捗計算、状態確認など）",
+    "Cargo.tomlにapplicationクレートへの依存を追加"
+  ]
+}

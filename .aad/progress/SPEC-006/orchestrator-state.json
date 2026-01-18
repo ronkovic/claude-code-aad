@@ -1,0 +1,60 @@
+{
+  "spec_id": "SPEC-006",
+  "status": "in_progress",
+  "started_at": "2026-01-18T00:00:00Z",
+  "current_wave": 0,
+  "total_waves": 7,
+  "tasks": [
+    {
+      "task_id": "SPEC-006-T01",
+      "wave": 1,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T02",
+      "wave": 2,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T03",
+      "wave": 3,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T04",
+      "wave": 4,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T05",
+      "wave": 5,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T06",
+      "wave": 6,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "task_id": "SPEC-006-T07",
+      "wave": 7,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    }
+  ],
+  "escalations": [],
+  "autonomous_decisions": []
+}
