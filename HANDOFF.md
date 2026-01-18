@@ -181,14 +181,23 @@ SPEC-003の振り返り実行が完了しました：
 
 ## 🚧 進行中のタスク
 
-### SPEC-004-T02: DependencyGraph実装
-- **ステータス**: in_progress
-- **開始日時**: 2026-01-18 14:40
-- **担当**: worktree (../claude-code-aad-T02/)
-- **ブランチ**: feature/SPEC-004-T02
-- **Issue**: [#22](https://github.com/ronkovic/claude-code-aad/issues/22)
+なし（SPEC-004-T02が完了し、PR #29をレビュー待ち）
 
 ### 最近完了したタスク
+
+#### SPEC-004-T02: DependencyGraph実装 ✅
+- **ステータス**: completed
+- **完了日時**: 2026-01-18 14:50
+- **PR**: [#29](https://github.com/ronkovic/claude-code-aad/pull/29)
+- **ブランチ**: feature/SPEC-004-T02
+- **Issue**: [#22](https://github.com/ronkovic/claude-code-aad/issues/22)
+- **実装内容**:
+  - DependencyGraph構造体（HashMap<SpecId, Vec<SpecId>>）
+  - トポロジカルソートアルゴリズム
+  - 循環依存検出ロジック
+  - 並列実行グループ識別機能
+  - 11件のユニットテスト（全パス）
+- **AC達成**: 4/4件完了
 
 #### SPEC-004-T01: Orchestrator構造体実装 ✅
 - **ステータス**: completed
@@ -209,18 +218,18 @@ SPEC-003の振り返り実行が完了しました：
 
 ### 即座に実行可能なアクション
 
-1. **PR #28のレビューとマージ**
-   - Draft PR #28（SPEC-004-T01）をレビュー
-   - 問題なければマージしてIssue #21をクローズ
+1. **PR #29のレビューとマージ**
+   - PR #29（SPEC-004-T02）をレビュー
+   - 問題なければマージしてIssue #22をクローズ
    - マージ後にworktreeを削除
 
-2. **SPEC-004-T02の開始**（T01マージ後）
-   - `/aad:worktree SPEC-004-T02` で新しいworktreeを作成
-   - DependencyGraph実装を開始
-   - Issue #22に対応
+2. **SPEC-004-T03の開始**（T02マージ後）
+   - `/aad:worktree SPEC-004-T03` で新しいworktreeを作成
+   - セッション登録・起動ロジック実装を開始
+   - Issue #23に対応
 
-3. **SPEC-004-T01の振り返り**（オプション）
-   - `/aad:retro SPEC-004-T01` で学びを記録
+3. **SPEC-004-T02の振り返り**（オプション）
+   - `/aad:retro SPEC-004-T02` で学びを記録
    - 問題点や改善点をドキュメント化
 
 ### Phase 4: オーケストレーション（進行中）
@@ -232,7 +241,7 @@ SPEC-004「オーケストレーション」のタスク分割が完了し、T01
 | タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
 |---------|---------|--------|------|-----------|-------|
 | SPEC-004-T01 | Orchestrator構造体実装 | M | なし | ✅ 完了 | [#21](https://github.com/ronkovic/claude-code-aad/issues/21) / [PR#28](https://github.com/ronkovic/claude-code-aad/pull/28) |
-| SPEC-004-T02 | DependencyGraph実装 | M | T01 | 🔵 進行中 | [#22](https://github.com/ronkovic/claude-code-aad/issues/22) |
+| SPEC-004-T02 | DependencyGraph実装 | M | T01 | ✅ 完了 | [#22](https://github.com/ronkovic/claude-code-aad/issues/22) / [PR#29](https://github.com/ronkovic/claude-code-aad/pull/29) |
 | SPEC-004-T03 | セッション登録・起動ロジック実装 | M | T01, T02 | 🟡 未着手 | [#23](https://github.com/ronkovic/claude-code-aad/issues/23) |
 | SPEC-004-T04 | モニターループ実装 | M | T01, T03 | 🟡 未着手 | [#24](https://github.com/ronkovic/claude-code-aad/issues/24) |
 | SPEC-004-T05 | エスカレーション処理実装 | M | T01, T04 | 🟡 未着手 | [#25](https://github.com/ronkovic/claude-code-aad/issues/25) |

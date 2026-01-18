@@ -15,10 +15,12 @@
     {
       "taskId": "SPEC-004-T02",
       "name": "DependencyGraph実装",
-      "status": "pending",
+      "status": "completed",
       "complexity": "M",
       "issueNumber": 22,
-      "dependencies": ["SPEC-004-T01"]
+      "dependencies": ["SPEC-004-T01"],
+      "completedAt": "2026-01-18T14:50:00Z",
+      "prNumber": 29
     },
     {
       "taskId": "SPEC-004-T03",
@@ -62,6 +64,6 @@
     }
   ],
   "totalTasks": 7,
-  "completedTasks": 1,
-  "lastUpdated": "2026-01-18T14:30:00Z"
+  "completedTasks": 2,
+  "lastUpdated": "2026-01-18T14:50:00Z"
 }
