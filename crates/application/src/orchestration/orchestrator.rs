@@ -1,11 +1,13 @@
 //! Core orchestrator for managing multiple sessions.
 
+use super::escalation::{Escalation, EscalationHandler, EscalationLevel};
 use super::monitor::{MonitorEvent, MonitorProgress, SessionStatus};
 use super::{DependencyGraph, OrchestratorConfig};
 use crate::error::{ApplicationError, Result};
 use domain::entities::Session;
 use domain::value_objects::{Phase, SpecId};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
@@ -369,6 +371,67 @@ impl Orchestrator {
     pub async fn mark_session_failed(&self, session_id: &SessionId) {
         let mut statuses = self.session_statuses.write().await;
         statuses.insert(session_id.clone(), SessionStatus::Failed);
+    }
+
+    /// Escalates a session issue to the parent session.
+    ///
+    /// This method creates an escalation record with the given level and reason,
+    /// logs it to the console and file system, and optionally notifies the parent session.
+    ///
+    /// # Arguments
+    ///
+    /// * `session_id` - The ID of the session to escalate
+    /// * `level` - The escalation level (Warning, Error, or Critical)
+    /// * `reason` - A description of why the escalation occurred
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if the escalation was handled successfully, or an error if the session
+    /// doesn't exist or the escalation couldn't be recorded.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use application::orchestration::{Orchestrator, OrchestratorConfig, EscalationLevel};
+    /// use domain::value_objects::{SpecId, Phase};
+    ///
+    /// # async {
+    /// let config = OrchestratorConfig::default();
+    /// let orchestrator = Orchestrator::new(config);
+    ///
+    /// let spec_id = SpecId::new();
+    /// let session_id = orchestrator.register_spec(&spec_id, Phase::Tdd).await.unwrap();
+    ///
+    /// // Escalate with error level
+    /// orchestrator.escalate(&session_id, EscalationLevel::Error, "Test failed").await.unwrap();
+    /// # };
+    /// ```
+    pub async fn escalate(
+        &self,
+        session_id: &SessionId,
+        level: EscalationLevel,
+        reason: &str,
+    ) -> Result<()> {
+        // 1. セッション情報取得
+        let session = self.get_session(session_id).await.ok_or_else(|| {
+            ApplicationError::Validation(format!("Session not found: {}", session_id))
+        })?;
+
+        // 2. Escalation構造体作成
+        let escalation = Escalation::new(session_id.clone(), level, reason.to_string())
+            .with_context(session.spec_id.to_string(), session.phase.to_string());
+
+        // 3. ファイル書き込み（.aad/escalations/）
+        let escalations_dir = PathBuf::from(".aad/escalations");
+        let handler = EscalationHandler::new(escalations_dir);
+        handler
+            .handle(&escalation)
+            .map_err(|e| ApplicationError::Validation(format!("Failed to handle escalation: {}", e)))?;
+
+        // 4. 親セッション通知（将来実装 - 現在はログのみ）
+        // TODO: Implement parent session notification
+
+        Ok(())
     }
 
     /// Gets the status of a session.
@@ -1062,5 +1125,44 @@ mod tests {
 
         // Status should be gone
         assert_eq!(orchestrator.get_session_status(&session_id).await, None);
+    }
+
+    #[tokio::test]
+    async fn test_escalate_creates_log() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let spec_id = SpecId::new();
+        let session_id = orchestrator
+            .register_spec(&spec_id, Phase::Tdd)
+            .await
+            .unwrap();
+
+        // Escalate with warning level
+        let result = orchestrator
+            .escalate(&session_id, EscalationLevel::Warning, "Test warning")
+            .await;
+
+        assert!(result.is_ok());
+
+        // Check that .aad/escalations directory exists
+        let escalations_dir = std::path::PathBuf::from(".aad/escalations");
+        assert!(escalations_dir.exists());
+    }
+
+    #[tokio::test]
+    async fn test_escalate_nonexistent_session() {
+        let config = OrchestratorConfig::default();
+        let orchestrator = Orchestrator::new(config);
+
+        let result = orchestrator
+            .escalate(
+                &"nonexistent".to_string(),
+                EscalationLevel::Error,
+                "Test error",
+            )
+            .await;
+
+        assert!(result.is_err());
     }
 }
