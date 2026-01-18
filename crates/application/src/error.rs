@@ -16,6 +16,14 @@ pub enum ApplicationError {
     /// Validation error.
     #[error("Validation error: {0}")]
     Validation(String),
+
+    /// Session already exists.
+    #[error("Session already exists: {0}")]
+    SessionAlreadyExists(String),
+
+    /// Cyclic dependency detected.
+    #[error("Cyclic dependency detected: {0:?}")]
+    CyclicDependency(Vec<String>),
 }
 
 /// Application layer result type.

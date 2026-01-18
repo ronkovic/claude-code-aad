@@ -4,6 +4,7 @@
 //! Clean Architecture principles.
 
 pub mod error;
+pub mod orchestration;
 pub mod workflow;
 
 // Re-export commonly used types
