@@ -3,9 +3,7 @@
 use chrono::{DateTime, Utc};
 use domain::entities::{Session, Spec};
 use domain::repositories::{SessionRepository, SpecRepository};
-use infrastructure::persistence::{
-    BackupAdapter, SessionJsonRepo, SpecJsonRepo, TaskJsonRepo,
-};
+use infrastructure::persistence::{BackupAdapter, SessionJsonRepo, SpecJsonRepo, TaskJsonRepo};
 use std::io::{self, Write};
 use std::path::Path;
 
@@ -16,7 +14,7 @@ pub async fn save() -> anyhow::Result<()> {
 
     // Initialize repositories
     let spec_repo = SpecJsonRepo::new(data_dir.join("specs"));
-    let task_repo = TaskJsonRepo::new(data_dir.join("tasks"));
+    let _task_repo = TaskJsonRepo::new(data_dir.join("tasks"));
     let session_repo = SessionJsonRepo::new(data_dir.join("sessions"));
     let backup_adapter = BackupAdapter::new(backup_dir);
 
@@ -27,12 +25,11 @@ pub async fn save() -> anyhow::Result<()> {
         // Backup specs directory
         for entry in std::fs::read_dir(data_dir.join("specs"))
             .unwrap_or_else(|_| std::fs::read_dir(".").unwrap())
+            .flatten()
         {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                    backup_adapter.backup(&path).await?;
-                }
+            let path = entry.path();
+            if path.extension().and_then(|s| s.to_str()) == Some("json") {
+                backup_adapter.backup(&path).await?;
             }
         }
 
@@ -104,9 +101,7 @@ pub async fn restore(timestamp: &str) -> anyhow::Result<()> {
     }
 
     // Confirm with user
-    print!(
-        "⚠  現在の状態は上書きされます。続行しますか? (y/N): "
-    );
+    print!("⚠  現在の状態は上書きされます。続行しますか? (y/N): ");
     io::stdout().flush()?;
 
     let mut input = String::new();
@@ -134,11 +129,17 @@ pub async fn restore(timestamp: &str) -> anyhow::Result<()> {
 
             // Determine target path based on file name
             let target_path = if original_name.starts_with("SPEC-") {
-                data_dir.join("specs").join(format!("{}.json", original_name))
+                data_dir
+                    .join("specs")
+                    .join(format!("{}.json", original_name))
             } else if original_name.starts_with("TASK-") {
-                data_dir.join("tasks").join(format!("{}.json", original_name))
+                data_dir
+                    .join("tasks")
+                    .join(format!("{}.json", original_name))
             } else {
-                data_dir.join("sessions").join(format!("{}.json", original_name))
+                data_dir
+                    .join("sessions")
+                    .join(format!("{}.json", original_name))
             };
 
             backup_adapter.restore(backup_path, &target_path).await?;
@@ -193,7 +194,7 @@ pub async fn list() -> anyhow::Result<()> {
             let timestamp = parts[1];
             grouped
                 .entry(timestamp.to_string())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(file_name.clone());
         }
     }
@@ -206,12 +207,7 @@ pub async fn list() -> anyhow::Result<()> {
 
     for (idx, timestamp) in timestamps.iter().enumerate() {
         let files = &grouped[*timestamp];
-        println!(
-            "  {}. {} ({} ファイル)",
-            idx + 1,
-            timestamp,
-            files.len()
-        );
+        println!("  {}. {} ({} ファイル)", idx + 1, timestamp, files.len());
 
         // Extract spec IDs if available
         let mut spec_ids = Vec::new();

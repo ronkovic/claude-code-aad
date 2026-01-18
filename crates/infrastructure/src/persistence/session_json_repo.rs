@@ -144,7 +144,10 @@ impl SessionRepository for SessionJsonRepo {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use domain::{entities::Session, value_objects::{Phase, SpecId}};
+    use domain::{
+        entities::Session,
+        value_objects::{Phase, SpecId},
+    };
     use tempfile::TempDir;
 
     #[tokio::test]

@@ -1,20 +1,25 @@
-//! TUI画面ビュー
+//! TUI Views
+
+pub mod dashboard;
+pub mod detail;
+pub mod monitor;
+pub mod workflow;
+
+pub use dashboard::DashboardView;
+pub use detail::DetailView;
+pub use monitor::MonitorView;
+pub use workflow::WorkflowView;
 
 /// TUI画面種別
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
-    /// ダッシュボード画面
     Dashboard,
-    /// 監視画面
     Monitor,
-    /// ワークフロー画面
     Workflow,
-    /// 詳細画面
     Detail,
 }
 
 impl View {
-    /// 次の画面に遷移
     pub fn next(&self) -> Self {
         match self {
             View::Dashboard => View::Monitor,

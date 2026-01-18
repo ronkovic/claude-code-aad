@@ -88,7 +88,7 @@ async fn execute_resume(dry_run: bool) -> anyhow::Result<()> {
 
 /// Executes orchestration in dry-run mode.
 async fn execute_dry_run(spec_ids: &[String]) -> anyhow::Result<()> {
-    let state = OrchestratorState::new(spec_ids.iter().cloned().collect());
+    let state = OrchestratorState::new(spec_ids.to_vec());
 
     // TODO: Load dependencies from .aad/specs/SPEC-XXX/dependencies.json if exists
     // For now, assume no dependencies
@@ -107,7 +107,7 @@ async fn execute_normal(spec_ids: &[String]) -> anyhow::Result<()> {
     println!();
 
     // Create initial state
-    let mut state = OrchestratorState::new(spec_ids.iter().cloned().collect());
+    let mut state = OrchestratorState::new(spec_ids.to_vec());
 
     // 1. Create orchestrator with default config
     let config = OrchestratorConfig::default();

@@ -1,27 +1,44 @@
-//! イベント処理
+use anyhow::Result;
+use crossterm::event::{self, Event, KeyEvent};
+use std::time::Duration;
 
-/// イベントハンドラ（スタブ）
+/// イベントハンドラ
 pub struct EventHandler;
 
 impl EventHandler {
-    /// 新しいEventHandlerインスタンスを作成
-    pub fn new() -> Self {
-        Self
+    /// イベントを読み取る（タイムアウト付き）
+    pub fn read_event(timeout: Duration) -> Result<Option<Event>> {
+        if event::poll(timeout)? {
+            Ok(Some(event::read()?))
+        } else {
+            Ok(None)
+        }
     }
-}
 
-impl Default for EventHandler {
-    fn default() -> Self {
-        Self::new()
+    /// キーイベントに変換
+    pub fn as_key_event(event: Event) -> Option<KeyEvent> {
+        match event {
+            Event::Key(key_event) => Some(key_event),
+            _ => None,
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crossterm::event::KeyCode;
 
     #[test]
-    fn test_new_event_handler() {
-        let _handler = EventHandler::new();
+    fn test_as_key_event_with_key() {
+        let key_event = KeyEvent::new(KeyCode::Char('a'), crossterm::event::KeyModifiers::NONE);
+        let event = Event::Key(key_event);
+        assert!(EventHandler::as_key_event(event).is_some());
+    }
+
+    #[test]
+    fn test_as_key_event_with_non_key() {
+        let event = Event::Resize(80, 24);
+        assert!(EventHandler::as_key_event(event).is_none());
     }
 }

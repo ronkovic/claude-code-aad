@@ -1,4 +1,5 @@
 pub mod init;
+pub mod monitor;
 pub mod orchestrate;
 pub mod persist;
 pub mod spec;
@@ -61,6 +62,9 @@ pub enum Commands {
         #[command(subcommand)]
         action: PersistAction,
     },
+
+    /// TUIダッシュボードを起動
+    Monitor(monitor::MonitorArgs),
 }
 
 #[derive(Subcommand)]
