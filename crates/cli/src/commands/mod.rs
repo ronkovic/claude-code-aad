@@ -45,6 +45,14 @@ pub enum Commands {
         /// 実行する仕様ID（複数指定可能）
         #[arg(long, value_delimiter = ' ', num_args = 1..)]
         specs: Vec<String>,
+
+        /// 中断したオーケストレーションを再開
+        #[arg(long)]
+        resume: bool,
+
+        /// 実行計画を表示（実際には実行しない）
+        #[arg(long)]
+        dry_run: bool,
     },
 }
 

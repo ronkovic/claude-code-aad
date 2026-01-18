@@ -118,10 +118,7 @@ mod tests {
             config.monitor_interval_secs,
             deserialized.monitor_interval_secs
         );
-        assert_eq!(
-            config.max_retry_attempts,
-            deserialized.max_retry_attempts
-        );
+        assert_eq!(config.max_retry_attempts, deserialized.max_retry_attempts);
         assert_eq!(config.retry_delay_secs, deserialized.retry_delay_secs);
     }
 }
