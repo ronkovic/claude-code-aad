@@ -1,0 +1,14 @@
+[package]
+name = "tui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ratatui = "0.28"
+crossterm = "0.28"
+anyhow = "1.0"
+
+[dependencies.domain]
+path = "../domain"
+
+[dev-dependencies]
