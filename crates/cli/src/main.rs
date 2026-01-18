@@ -52,6 +52,17 @@ fn main() -> anyhow::Result<()> {
             let rt = tokio::runtime::Runtime::new()?;
             rt.block_on(commands::loop_cmd::execute(&spec_id, resume))?;
         }
+        Commands::Retro { spec_id, no_append } => {
+            commands::retro_cmd::execute(&spec_id, no_append)?;
+        }
+        Commands::Gate { phase } => {
+            commands::gate_cmd::execute(&phase)?;
+        }
+        Commands::Integrate { spec_id, dry_run } => {
+            // Create tokio runtime for async integrate command
+            let rt = tokio::runtime::Runtime::new()?;
+            rt.block_on(commands::integrate_cmd::execute(&spec_id, dry_run))?;
+        }
     }
 
     Ok(())

@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 # Internal dependencies
 domain = { path = "../domain" }
+infrastructure = { path = "../infrastructure" }
 
 # Workspace dependencies
 chrono = { workspace = true }

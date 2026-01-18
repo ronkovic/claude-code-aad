@@ -37,6 +37,18 @@ pub enum PersistenceError {
     #[error("Token replacement error: {0}")]
     TokenReplacementError(String),
 
+    /// Command execution error.
+    #[error("Command execution error: {0}")]
+    CommandError(String),
+
+    /// Invalid input error.
+    #[error("Invalid input: {0}")]
+    InvalidInput(String),
+
+    /// Parse error.
+    #[error("Parse error: {0}")]
+    ParseError(String),
+
     /// Domain error wrapper.
     #[error("Domain error: {0}")]
     DomainError(#[from] domain::DomainError),

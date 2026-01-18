@@ -28,6 +28,10 @@ pub enum ApplicationError {
     /// Pattern loading error.
     #[error("Pattern loading error: {0}")]
     PatternLoadError(String),
+
+    /// External service error.
+    #[error("External service error: {0}")]
+    ExternalServiceError(String),
 }
 
 /// Application layer result type.

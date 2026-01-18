@@ -1,8 +1,11 @@
+pub mod gate_cmd;
 pub mod init;
+pub mod integrate_cmd;
 pub mod loop_cmd;
 pub mod monitor;
 pub mod orchestrate;
 pub mod persist;
+pub mod retro_cmd;
 pub mod spec;
 pub mod style;
 pub mod tasks;
@@ -75,6 +78,32 @@ pub enum Commands {
         /// 中断したループを再開
         #[arg(long)]
         resume: bool,
+    },
+
+    /// 振り返りテンプレート生成
+    Retro {
+        /// 仕様ID（例: SPEC-001）
+        spec_id: String,
+
+        /// CLAUDE.md への追記をスキップ
+        #[arg(long)]
+        no_append: bool,
+    },
+
+    /// 品質ゲートチェックを実行
+    Gate {
+        /// フェーズ名（SPEC, TASKS, TDD, REVIEW, RETRO, MERGE）
+        phase: String,
+    },
+
+    /// PR作成→マージ→worktree削除の統合フロー
+    Integrate {
+        /// 仕様ID（例: SPEC-001）
+        spec_id: String,
+
+        /// 実行計画を表示（実際には実行しない）
+        #[arg(long)]
+        dry_run: bool,
     },
 }
 

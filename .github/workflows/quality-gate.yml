@@ -94,10 +94,159 @@ jobs:
           use-quiet-mode: 'yes'
           config-file: '.github/markdown-link-check-config.json'
 
+  rust-build:
+    name: Rust Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --verbose --all-features
+
+      - name: Build tests
+        run: cargo build --tests --verbose --all-features
+
+  rust-clippy:
+    name: Rust Clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  rust-test:
+    name: Rust Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run tests
+        run: cargo test --verbose --all-features
+
+  rust-coverage:
+    name: Rust Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Generate coverage
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+      - name: Check coverage threshold
+        run: |
+          coverage=$(cargo llvm-cov --all-features --workspace --summary-only | grep 'TOTAL' | awk '{print $10}' | sed 's/%//')
+          echo "Coverage: ${coverage}%"
+          if (( $(echo "$coverage < 80" | bc -l) )); then
+            echo "❌ Coverage ${coverage}% is below 80% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage ${coverage}% meets the 80% threshold"
+
+  aad-gate:
+    name: AAD Quality Gate
+    runs-on: ubuntu-latest
+    needs: [rust-build, rust-test, rust-coverage]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build aad binary
+        run: cargo build --release
+
+      - name: Run TDD gate check
+        run: ./target/release/aad gate TDD
+
   summary:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [validate-structure, validate-scripts, validate-markdown]
+    needs: [validate-structure, validate-scripts, validate-markdown, rust-build, rust-clippy, rust-test, rust-coverage, aad-gate]
     if: always()
 
     steps:
@@ -107,9 +256,19 @@ jobs:
           echo "- Structure Validation: ${{ needs.validate-structure.result }}"
           echo "- Scripts Validation: ${{ needs.validate-scripts.result }}"
           echo "- Markdown Validation: ${{ needs.validate-markdown.result }}"
+          echo "- Rust Build: ${{ needs.rust-build.result }}"
+          echo "- Rust Clippy: ${{ needs.rust-clippy.result }}"
+          echo "- Rust Test: ${{ needs.rust-test.result }}"
+          echo "- Rust Coverage: ${{ needs.rust-coverage.result }}"
+          echo "- AAD Gate: ${{ needs.aad-gate.result }}"
 
           if [ "${{ needs.validate-structure.result }}" != "success" ] || \
-             [ "${{ needs.validate-scripts.result }}" != "success" ]; then
+             [ "${{ needs.validate-scripts.result }}" != "success" ] || \
+             [ "${{ needs.rust-build.result }}" != "success" ] || \
+             [ "${{ needs.rust-clippy.result }}" != "success" ] || \
+             [ "${{ needs.rust-test.result }}" != "success" ] || \
+             [ "${{ needs.rust-coverage.result }}" != "success" ] || \
+             [ "${{ needs.aad-gate.result }}" != "success" ]; then
             echo "❌ Quality Gate FAILED"
             exit 1
           fi
