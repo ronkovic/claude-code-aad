@@ -307,7 +307,7 @@ workspace.dependencies:
 
 ## 🔗 関連ドキュメント
 
-- [SPEC-001詳細](.aad/specs/SPEC-001.md)
+- [SPEC-001詳細](../../specs/SPEC-001.md)
 - [検証手順](./VALIDATION_REQUIRED.md)
 - [ブロッカー](./blocks/T01-001-bash-permission.md)
 
