@@ -181,16 +181,21 @@ SPEC-003の振り返り実行が完了しました：
 
 ## 🚧 進行中のタスク
 
-なし（SPEC-004-T01が完了し、PR #28をレビュー待ち）
+### SPEC-004-T02: DependencyGraph実装
+- **ステータス**: in_progress
+- **開始日時**: 2026-01-18 14:40
+- **担当**: worktree (../claude-code-aad-T02/)
+- **ブランチ**: feature/SPEC-004-T02
+- **Issue**: [#22](https://github.com/ronkovic/claude-code-aad/issues/22)
 
 ### 最近完了したタスク
 
 #### SPEC-004-T01: Orchestrator構造体実装 ✅
 - **ステータス**: completed
-- **完了日時**: 2026-01-18 14:30
-- **PR**: [#28](https://github.com/ronkovic/claude-code-aad/pull/28)（Draft）
-- **ブランチ**: feature/SPEC-004-T01
-- **Issue**: [#21](https://github.com/ronkovic/claude-code-aad/issues/21)
+- **完了日時**: 2026-01-18 14:35
+- **PR**: [#28](https://github.com/ronkovic/claude-code-aad/pull/28)（MERGED）
+- **ブランチ**: feature/SPEC-004-T01（削除済み）
+- **Issue**: [#21](https://github.com/ronkovic/claude-code-aad/issues/21)（CLOSED）
 - **実装内容**:
   - Orchestrator構造体（Arc<RwLock<HashMap<SessionId, Session>>>）
   - OrchestratorConfig構造体
@@ -227,7 +232,7 @@ SPEC-004「オーケストレーション」のタスク分割が完了し、T01
 | タスクID | タイトル | 複雑度 | 依存 | ステータス | Issue |
 |---------|---------|--------|------|-----------|-------|
 | SPEC-004-T01 | Orchestrator構造体実装 | M | なし | ✅ 完了 | [#21](https://github.com/ronkovic/claude-code-aad/issues/21) / [PR#28](https://github.com/ronkovic/claude-code-aad/pull/28) |
-| SPEC-004-T02 | DependencyGraph実装 | M | T01 | 🟡 未着手 | [#22](https://github.com/ronkovic/claude-code-aad/issues/22) |
+| SPEC-004-T02 | DependencyGraph実装 | M | T01 | 🔵 進行中 | [#22](https://github.com/ronkovic/claude-code-aad/issues/22) |
 | SPEC-004-T03 | セッション登録・起動ロジック実装 | M | T01, T02 | 🟡 未着手 | [#23](https://github.com/ronkovic/claude-code-aad/issues/23) |
 | SPEC-004-T04 | モニターループ実装 | M | T01, T03 | 🟡 未着手 | [#24](https://github.com/ronkovic/claude-code-aad/issues/24) |
 | SPEC-004-T05 | エスカレーション処理実装 | M | T01, T04 | 🟡 未着手 | [#25](https://github.com/ronkovic/claude-code-aad/issues/25) |
