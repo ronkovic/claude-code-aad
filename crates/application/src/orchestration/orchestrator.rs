@@ -433,9 +433,9 @@ impl Orchestrator {
         // 3. ファイル書き込み（.aad/escalations/）
         let escalations_dir = PathBuf::from(".aad/escalations");
         let handler = EscalationHandler::new(escalations_dir);
-        handler
-            .handle(&escalation)
-            .map_err(|e| ApplicationError::Validation(format!("Failed to handle escalation: {}", e)))?;
+        handler.handle(&escalation).map_err(|e| {
+            ApplicationError::Validation(format!("Failed to handle escalation: {}", e))
+        })?;
 
         // 4. 親セッション通知（将来実装 - 現在はログのみ）
         // TODO: Implement parent session notification
@@ -532,11 +532,7 @@ impl Orchestrator {
     /// orchestrator.handle_session_failure(&session_id, "Test failed").await.unwrap();
     /// # };
     /// ```
-    pub async fn handle_session_failure(
-        &self,
-        session_id: &SessionId,
-        reason: &str,
-    ) -> Result<()> {
+    pub async fn handle_session_failure(&self, session_id: &SessionId, reason: &str) -> Result<()> {
         // 1. エスカレーション
         self.escalate(session_id, EscalationLevel::Error, reason)
             .await?;
@@ -1082,9 +1078,7 @@ mod tests {
         let config = OrchestratorConfig::default();
         let orchestrator = Orchestrator::new(config);
 
-        let result = orchestrator
-            .start_session(&"nonexistent".to_string())
-            .await;
+        let result = orchestrator.start_session(&"nonexistent".to_string()).await;
         assert!(result.is_err());
     }
 
@@ -1136,10 +1130,7 @@ mod tests {
 
         // spec1 should be started first
         let sessions = orchestrator.get_all_sessions().await;
-        let spec1_session = sessions
-            .iter()
-            .find(|s| s.spec_id == spec1)
-            .unwrap();
+        let spec1_session = sessions.iter().find(|s| s.spec_id == spec1).unwrap();
         assert_eq!(started[0], spec1_session.id);
     }
 

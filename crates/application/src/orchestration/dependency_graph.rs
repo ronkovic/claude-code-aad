@@ -196,12 +196,9 @@ impl DependencyGraph {
 
         for spec_id in self.dependencies.keys() {
             if !visited.contains(spec_id) {
-                if let Some(cycle) = self.dfs_cycle_detection(
-                    spec_id,
-                    &mut visited,
-                    &mut rec_stack,
-                    &mut path,
-                ) {
+                if let Some(cycle) =
+                    self.dfs_cycle_detection(spec_id, &mut visited, &mut rec_stack, &mut path)
+                {
                     return Some(cycle);
                 }
             }
@@ -225,9 +222,7 @@ impl DependencyGraph {
         if let Some(deps) = self.dependencies.get(spec_id) {
             for dep in deps {
                 if !visited.contains(dep) {
-                    if let Some(cycle) =
-                        self.dfs_cycle_detection(dep, visited, rec_stack, path)
-                    {
+                    if let Some(cycle) = self.dfs_cycle_detection(dep, visited, rec_stack, path) {
                         return Some(cycle);
                     }
                 } else if rec_stack.contains(dep) {

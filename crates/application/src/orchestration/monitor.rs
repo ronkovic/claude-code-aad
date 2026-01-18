@@ -184,7 +184,10 @@ pub mod log {
                 ));
             }
             MonitorEvent::SessionFailed { session_id, reason } => {
-                error(&format!("Session failed: {} (reason: {})", session_id, reason));
+                error(&format!(
+                    "Session failed: {} (reason: {})",
+                    session_id, reason
+                ));
             }
             MonitorEvent::ProgressUpdate {
                 completed,
