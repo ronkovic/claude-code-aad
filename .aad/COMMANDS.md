@@ -294,6 +294,69 @@ Wave 3: T03, T04, T05 (3並列)
 
 ---
 
+### `/aad:worker`
+
+SPEC全体を自律実行するためのworktree作成と自律実行プロンプトを生成します。
+
+**基本使用法**:
+```
+/aad:worker SPEC-001
+```
+
+**実行内容**:
+1. SPEC配下のタスク一覧取得
+2. 依存関係解析 → 実行順序決定
+3. worktree作成（feature/SPEC-001）
+4. SPECとTASKをworktreeにコピー
+5. 自律実行プロンプト生成・配置
+6. 実行コマンドを表示
+
+**出力例**:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+完了：worktree作成と自律実行プロンプト生成が完了しました
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 SPEC: SPEC-001
+📂 worktree: ../project-SPEC-001/
+🌿 ブランチ: feature/SPEC-001
+
+タスク実行順序:
+  1. T01: データベーススキーマ作成
+  2. T02: APIエンドポイント実装
+  3. T03: フロントエンドUI実装
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+通知：別ターミナルで以下を実行してください
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd ../project-SPEC-001 && claude --dangerously-skip-permissions
+
+子Claude Codeが自律的に全タスクを実行し、PR作成まで行います。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**worktree vs orchestrate との違い**:
+
+| 項目 | aad:worker | aad:worktree | aad:orchestrate |
+|------|------------|--------------|-----------------|
+| 対象 | SPEC全体 | 単一タスク | SPEC全体 |
+| 子の起動 | ユーザー手動 | ユーザー手動 | 親が自動 |
+| 自律プロンプト | あり（全タスク） | なし | あり |
+| PR作成 | 子が自動 | 子が手動 | 子が自動 |
+| 権限 | --dangerously-skip-permissions | 任意 | 通常権限 |
+
+**使い分け**:
+- `aad:worker`: SPEC全体を自律実行させたい（ユーザー手動起動）
+- `aad:worktree`: 単一タスクを実行したい
+- `aad:orchestrate`: 親が監視しながら自動実行したい
+
+**関連コマンド**: `/aad:tasks`, `/aad:worktree`, `/aad:integrate`, `/aad:orchestrate`
+
+**参考**: [.claude/commands/aad/worker.md](../.claude/commands/aad/worker.md)
+
+---
+
 ### `/aad:retro`
 
 SPEC完了後に振り返りを実行し、学びを蓄積します。
@@ -571,7 +634,18 @@ HANDOFF.md を読んで現在の状況を把握してください。
 10. /aad:retro SPEC-001    # 振り返り
 ```
 
-### 自動フロー
+### 自律実行フロー（ユーザー手動起動）
+
+```
+1. /aad:init               # 初期化
+2. /aad:gate SPEC          # SPEC承認確認
+3. /aad:tasks SPEC-001     # タスク分割
+4. /aad:worker SPEC-001    # worktree作成 + 自律実行プロンプト生成
+5. (別ターミナル) cd ../project-SPEC-001 && claude --dangerously-skip-permissions
+6. /aad:retro SPEC-001     # 振り返り
+```
+
+### 自動フロー（親が監視）
 
 ```
 1. /aad:init               # 初期化
