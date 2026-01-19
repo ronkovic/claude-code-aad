@@ -1,0 +1,58 @@
+{
+  "feature": "phase9-aad-enhancements",
+  "description": "AAD改善要件の実装: 監視可視化、PR連携強化、権限エスカレーション、自律実行継続などの11項目を4つのWaveに分けて実装する",
+  "language": "ja",
+  "phase": "initialized",
+  "created_at": "2026-01-19T00:00:00Z",
+  "updated_at": "2026-01-19T00:00:00Z",
+  "approvals": {
+    "requirements": {
+      "generated": false,
+      "approved": false
+    },
+    "design": {
+      "generated": false,
+      "approved": false
+    },
+    "tasks": {
+      "generated": false,
+      "approved": false
+    }
+  },
+  "metadata": {
+    "implementation_phase": 9,
+    "duration": "1-2週間",
+    "dependencies": [
+      "phase1-domain-foundation",
+      "phase2-config-workflow",
+      "phase3-cli-basic-commands",
+      "phase4-orchestration",
+      "phase5-persistence",
+      "phase6-tui-dashboard",
+      "phase7-task-loop",
+      "phase8-quality-github"
+    ],
+    "waves": [
+      {
+        "wave": 1,
+        "name": "基盤・独立機能",
+        "requirements": ["R4", "R6", "R9", "R10"]
+      },
+      {
+        "wave": 2,
+        "name": "監視・可視化",
+        "requirements": ["R1", "R5"]
+      },
+      {
+        "wave": 3,
+        "name": "権限・エラー処理",
+        "requirements": ["R3", "R8"]
+      },
+      {
+        "wave": 4,
+        "name": "統合・自律化",
+        "requirements": ["R2", "R11"]
+      }
+    ]
+  }
+}

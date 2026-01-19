@@ -109,6 +109,44 @@ SPECからタスク分割、並列開発、統合まで全て自動実行しま�
 
 # GitHub Issues作成をスキップ
 /aad:orchestrate SPEC-001 --no-issues
+
+# 自律実行モード（人間介入を最小化）
+/aad:orchestrate SPEC-001 --autonomous
+```
+
+### 自律実行モード（`--autonomous`）
+
+人間介入を最小化し、可能な限り自律的にタスクを実行します。
+
+**自律判断可能な項目**（人間介入なし）:
+- 軽微な設計判断（既存パターンに従う場合）
+- コーディング規約に関する判断
+- テストのエッジケース追加
+- 依存ライブラリのマイナーバージョンアップ
+- ドキュメントの更新
+- リファクタリング（既存機能を壊さない範囲）
+
+**エスカレーション維持項目**（人間承認必須）:
+- セキュリティ関連判断
+- アーキテクチャ変更
+- 仕様の重大な曖昧さ
+- 外部API/サービスの選択
+- 破壊的変更（Breaking Changes）
+- 本番環境への影響がある変更
+
+**動作**:
+- 自律判断可能な項目は、子Agentが自動的に判断して記録
+- エスカレーション維持項目は、通常通り人間に質問
+- 判断内容は `.aad/progress/SPEC-XXX/autonomous-decisions.json` に記録
+
+**例**:
+```bash
+/aad:orchestrate SPEC-001 --autonomous
+
+# 自律判断の例:
+# - テストでのエッジケース追加 → 自動判断（記録）
+# - 既存パターンに従うUI実装 → 自動判断（記録）
+# - 外部API選択 → エスカレーション（人間承認）
 ```
 
 ## 実装詳細
@@ -138,6 +176,23 @@ SPECからタスク分割、並列開発、統合まで全て自動実行しま�
 
 ### Step 3: 監視ループ
 
+**重要: 監視中は視覚的フィードバックを提供してください**
+
+待機中の視覚的フィードバック例:
+```
+🔄 監視中...
+┌─────────────────────────────────┐
+│ SPEC-009 [████████░░░░] 67%     │
+│ ├─ T01 ✅ 完了 (3分前)          │
+│ ├─ T02 ✅ 完了 (1分前)          │
+│ ├─ T03 🔄 実行中 (5分経過)      │
+│ └─ T04 ⏸️ 待機中                │
+└─────────────────────────────────┘
+
+⏱️  経過時間: 10分
+📍 Worktree: /path/to/worktree-T03
+```
+
 ```python
 while 未完了の子がある:
     for each taskId in 実行中タスク:
@@ -148,13 +203,82 @@ while 未完了の子がある:
             - spec-status.json を確認
             - 完了したタスクのPRを確認
             - orchestrator.json を更新
+            - 完了通知を表示:
+              "✅ SPEC-XXX-TXX 完了！ (PR: #XX, 所要時間: XX分)"
 
         elif result.status == "escalate":
             # エスカレーション処理
-            - blocks/*.md を読み取り
-            - 人間に AskUserQuestion で質問
-            - 回答を *-answer.json に保存
-            - 新しい子を resume モードで起動
+            - result.type を確認（"question" または "permission" または "split"）
+
+            # 通常のエスカレーション（質問）
+            if result.type == "question":
+                - blocks/*.md を読み取り
+                - 人間に AskUserQuestion で質問
+                - 回答を *-answer.json に保存
+                - 新しい子を resume モードで起動
+
+            # 権限エスカレーション
+            elif result.type == "permission":
+                - permissions/{{PERM_ID}}.json を読み取り
+                - 権限要求の詳細を確認:
+                  * type: file_write, command_exec, api_call, etc.
+                  * resource: 対象リソース
+                  * reason: 必要な理由
+                  * alternatives: 代替案
+                - 人間に承認を依頼:
+                  ```
+                  ⚠️  権限要求: {{PERM_ID}}
+
+                  タスク: {{TASK_ID}}
+                  種類: {{type}}
+                  リソース: {{resource}}
+
+                  理由:
+                  {{reason}}
+
+                  代替案:
+                  {{alternatives}}
+
+                  この権限を承認しますか？ (y/n)
+                  制約を追加する場合は、制約内容を入力してください:
+                  ```
+                - 承認された場合:
+                  * permissions/{{PERM_ID}}-approved.json を作成
+                  * constraints を記録
+                  * 新しい子を resume モードで起動
+                - 拒否された場合:
+                  * permissions/{{PERM_ID}}-rejected.json を作成
+                  * reason を記録
+                  * タスクを failed としてマーク
+
+            # タスク分割エスカレーション
+            elif result.type == "split":
+                - splits/{{TASK_ID}}-split.json を読み取り
+                - 分割内容を確認:
+                  * originalTaskId
+                  * subtasks (id, description, complexity, dependencies)
+                  * reason
+                - 人間に確認:
+                  ```
+                  📊 タスク分割提案: {{TASK_ID}}
+
+                  理由: {{reason}}
+
+                  サブタスク:
+                  {{#each subtasks}}
+                    - {{id}}: {{description}} ({{complexity}})
+                      依存関係: {{dependencies}}
+                  {{/each}}
+
+                  この分割を承認しますか？ (y/n)
+                  ```
+                - 承認された場合:
+                  * 元タスクを「分割済み」としてマーク
+                  * サブタスクをWaveに追加
+                  * サブタスクを実行
+                - 拒否された場合:
+                  * 元タスクを failed としてマーク
+                  * 理由を記録
 
         elif result.status == "failed":
             # エラー処理
@@ -162,8 +286,11 @@ while 未完了の子がある:
             - 人間に対応を確認
 
         else:
-            # 継続中
-            pass
+            # 継続中 - 監視UIを更新
+            - 進捗状況を表示（上記の視覚的フィードバック形式）
+            - 現在のタスク状態を表示
+            - Worktree配下で実行されていることを確認:
+              "📍 Worktree確認: タスクは {worktree_path} で実行中"
 
     wait(3秒)
 ```

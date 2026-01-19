@@ -57,12 +57,17 @@ SPEC仕様書を分析し、実装可能なタスクに分割します。`--no-i
    - 各タスクのMarkdownファイルを作成
    - 実装内容、変更ファイル、テストケース、依存関係を記載
 
-4. **GitHub Issues作成**（`--no-issues`未指定時）
+4. **GitHub Issueラベル確認・作成**（`--no-issues`未指定時）
+   - `.claude/scripts/ensure-labels.sh` を実行してラベルを確認・作成
+   - SPEC-XXX用のラベルも作成
+   - 不足しているラベルがあれば自動作成
+
+5. **GitHub Issues作成**（`--no-issues`未指定時）
    - `gh issue create` で各タスクのIssueを作成
    - ラベル: `spec:SPEC-XXX`, `priority:must/should/could`, `size:S/M/L`
    - マイルストーン: SPEC-XXX
 
-5. **HANDOFF.md更新**
+6. **HANDOFF.md更新**
    - 「未着手のタスク」セクションにタスク一覧を追記
 
 ## 使用方法

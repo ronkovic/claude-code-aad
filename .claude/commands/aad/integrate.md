@@ -49,15 +49,19 @@
    - Squash mergeをデフォルトで使用
    - ブランチを自動削除
 
-4. **Issue閉鎖**（GitHub連携使用時）
-   - 対応するGitHub Issueを閉鎖
-   - クローズコメントに成果物を記載
+4. **PRボディにIssue自動クローズを追加**（GitHub連携使用時）
+   - PRボディに `Closes #XX` を自動追加
+   - タスクファイルから対応するGitHub Issue番号を取得
+   - PRマージ時に自動的にIssueがクローズされる
 
-5. **worktree削除**
+5. **Issue閉鎖確認**（GitHub連携使用時）
+   - PRマージ後、対応するIssueが自動クローズされたことを確認
+
+6. **worktree削除**
    - `git worktree remove` でworktreeを削除
    - ローカルブランチも削除
 
-6. **HANDOFF.md更新**
+7. **HANDOFF.md更新**
    - 「進行中のタスク」から削除
    - 「完了したタスク」に追加
 
@@ -139,6 +143,115 @@
 - リニアな履歴を維持
 - コンフリクト解決が必要な場合がある
 - 推奨：履歴の美しさを重視する場合
+
+---
+
+## マージ方法の詳細
+
+### 方法1: GitHub Web UI（推奨）
+
+**メリット**:
+- 視覚的で分かりやすい
+- レビューコメントと一緒に確認できる
+- CIステータスが一目で分かる
+
+**手順**:
+1. PR画面を開く
+2. "Squash and merge" ボタンをクリック
+3. コミットメッセージを確認・編集
+4. "Confirm squash and merge" をクリック
+5. "Delete branch" をクリック（オプション）
+
+### マージ先ブランチの自動検出
+
+PRマージ時、worktreeのベースブランチを自動検出してマージ先とします:
+
+```bash
+# worktreeのベースブランチ取得
+BASE=$(git config --get branch.$(git branch --show-current).merge | sed 's|refs/heads/||')
+
+# PRをベースブランチに向けて作成（既にPRが存在する場合は不要）
+gh pr create --base "$BASE" --draft --title "feat(SPEC-XXX): タスク概要"
+
+# マージもベースブランチに向ける
+gh pr merge <PR番号> --squash --delete-branch --base "$BASE"
+```
+
+**注意**:
+- worktreeで作成されたブランチは、元のブランチ（通常は`main`またはSPECブランチ）を自動的に追跡します
+- `--base`を明示することで、意図しないブランチへのマージを防ぎます
+- デフォルトブランチが`main`以外の場合も正しく動作します
+
+### 方法2: GitHub CLI
+
+**メリット**:
+- コマンドラインで完結
+- スクリプト化・自動化が容易
+- 高速な操作が可能
+
+**基本的なマージ（Squash）**:
+```bash
+# ベースブランチを自動検出してマージ
+BASE=$(git config --get branch.$(git branch --show-current).merge | sed 's|refs/heads/||')
+gh pr merge <PR番号> --squash --delete-branch
+
+# または明示的にベース指定
+gh pr merge <PR番号> --squash --delete-branch --base "$BASE"
+```
+
+**マージ戦略を指定**:
+```bash
+# Merge commit
+gh pr merge <PR番号> --merge --delete-branch
+
+# Rebase merge
+gh pr merge <PR番号> --rebase --delete-branch
+```
+
+**承認待ちの場合、自動マージ設定**:
+```bash
+gh pr merge <PR番号> --squash --delete-branch --auto
+```
+
+**コミットメッセージを指定**:
+```bash
+gh pr merge <PR番号> --squash --delete-branch \
+  --subject "feat(SPEC-001): ユーザー認証機能の実装" \
+  --body "詳細な説明..."
+```
+
+### 方法3: Git CLI（上級者向け）
+
+```bash
+# mainブランチに切り替え
+git checkout main
+
+# 最新を取得
+git pull origin main
+
+# マージ（squash）
+git merge --squash feature/SPEC-001-T01
+
+# コミット
+git commit -m "feat(SPEC-001): タスクT01の実装"
+
+# プッシュ
+git push origin main
+
+# リモートブランチ削除
+git push origin --delete feature/SPEC-001-T01
+
+# ローカルブランチ削除
+git branch -d feature/SPEC-001-T01
+```
+
+### マージ前の確認事項
+
+- [ ] 全テストがgreen
+- [ ] CI/CDが成功
+- [ ] レビュー承認済み
+- [ ] コンフリクトなし
+- [ ] PRボディに `Closes #XX` が含まれている
 
 ## 品質ゲート完了条件
 

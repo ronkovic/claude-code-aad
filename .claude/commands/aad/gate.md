@@ -223,11 +223,38 @@ TDD品質ゲート合格時に自動的にコミットを作成：
 
 ### REVIEW（レビュー）
 
+**包括的レビューチェック**:
+
 - [ ] AI自己レビュー完了
 - [ ] CI green
+- [ ] **コンフリクトチェック実施** - `git merge --no-commit --no-ff origin/main`
+- [ ] **CI dry-run実施** - `cargo test && cargo clippy`
 - [ ] コンフリクトなし
 - [ ] セキュリティスキャン通過
+- [ ] コード品質基準を満たしている
+- [ ] PRボディに `Closes #XX` が含まれている（GitHub連携使用時）
 - [ ] **⚠️ 人間承認必須**
+
+**コンフリクトチェック手順**:
+```bash
+# mainブランチとのマージをシミュレーション
+git fetch origin main
+git merge --no-commit --no-ff origin/main
+
+# コンフリクトがあれば検出される
+# コンフリクトがない場合
+git merge --abort  # マージを中止
+```
+
+**CI dry-run手順**:
+```bash
+# ローカルでCIと同じチェックを実行
+cargo test --all
+cargo clippy --all -- -D warnings
+cargo fmt --all -- --check
+
+# 全て通過すれば、CI greenが期待できる
+```
 
 ### RETRO（振り返り）
 
