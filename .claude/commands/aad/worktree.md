@@ -84,14 +84,18 @@ Git worktreeを使用して、元のフォルダに影響を与えずに並列�
    - worktreeパス: `../[project-name]-TXX/`
    - 元のフォルダには影響なし
 
-4. **セットアップ**
+4. **TASKのコピー**
+   - 元のディレクトリから `.aad/tasks/SPEC-XXX/TXX-xxx.md` をworktreeにコピー
+   - **重要**: `.aad` がgit管理されていない場合でも、子Claude Codeが必要なファイルにアクセスできるようにする
+
+5. **セットアップ**
    - 依存関係インストール（package.jsonがある場合）
    - 環境変数コピー（.envがある場合）
 
-5. **HANDOFF.md更新**
+6. **HANDOFF.md更新**
    - 「進行中のタスク」セクションにworktree情報を追記
 
-6. **CLAUDE.md 出力スタイル追加**
+7. **CLAUDE.md 出力スタイル追加**
    - worktreeのCLAUDE.mdに出力スタイル指示を追加
    - 以下のセクションをファイル冒頭に挿入：
 
@@ -212,3 +216,4 @@ claude --dangerously-skip-permissions
 - 複数のworktreeを同時に作成して並列開発が可能です
 - worktreeを削除する場合は `/aad:integrate` コマンドを使用してください
 - 手動削除する場合: `git worktree remove ../my-project-T01`
+- **重要**: `.aad` がgit管理されていない場合でも、TASKファイルは自動的にworktreeにコピーされます
